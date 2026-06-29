@@ -24,8 +24,10 @@ class InvoiceRepository {
   }
 
   // Generate Mercado Pago Link
+  // NOTA: /payments/generate-link no existe aún en el backend.
+  // Usamos /payments/simulate como fallback hasta que Alejandro lo implemente.
   Future<Map<String, dynamic>> generatePaymentLink(String invoiceId, String documentType) async {
-    final response = await ApiClient.instance.post('/payments/generate-link/$invoiceId', {
+    final response = await ApiClient.instance.post('/payments/simulate/$invoiceId', {
       'chosenDocumentType': documentType,
     });
     return asMap(response);

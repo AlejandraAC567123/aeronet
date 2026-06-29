@@ -3,7 +3,8 @@ class TechnicianModel {
   final String fullName;
   final String email;
   final String phone;
-  final String specialty;
+  final String documentNumber;
+  final String specialization;
   final String status;
 
   TechnicianModel({
@@ -11,7 +12,8 @@ class TechnicianModel {
     required this.fullName,
     required this.email,
     required this.phone,
-    required this.specialty,
+    required this.documentNumber,
+    required this.specialization,
     required this.status,
   });
 
@@ -21,7 +23,8 @@ class TechnicianModel {
       fullName: '${json['full_name'] ?? ''}',
       email: '${json['email'] ?? ''}',
       phone: '${json['phone'] ?? ''}',
-      specialty: '${json['specialty'] ?? ''}',
+      documentNumber: '${json['document_number'] ?? ''}',
+      specialization: '${json['specialization'] ?? json['specialty'] ?? ''}',
       status: '${json['status'] ?? 'active'}',
     );
   }
@@ -32,7 +35,8 @@ class TechnicianModel {
       'full_name': fullName,
       'email': email,
       'phone': phone,
-      'specialty': specialty,
+      'document_number': documentNumber,
+      'specialization': specialization,
       'status': status,
     };
   }

@@ -199,7 +199,7 @@ class DashboardScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    'Subida: ${plan.uploadSpeed} Mbps / Bajada: ${plan.downloadSpeed} Mbps',
+                    'Velocidad: ${plan.speedMbps} Mbps',
                     style: const TextStyle(
                       fontSize: 13,
                       color: Colors.white60,

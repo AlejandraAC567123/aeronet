@@ -20,8 +20,12 @@ class TechniciansScreen extends StatelessWidget {
     final isEdit = technician != null;
     final nameController = TextEditingController(text: technician?.fullName);
     final emailController = TextEditingController(text: technician?.email);
+    final passwordController = TextEditingController();
     final phoneController = TextEditingController(text: technician?.phone);
-    final specController = TextEditingController(text: technician?.specialty);
+    final docNumController = TextEditingController(text: technician?.documentNumber);
+    String selectedSpecialization = technician != null && technician.specialization.isNotEmpty
+        ? technician.specialization
+        : 'FIBRA';
     String status = technician?.status ?? 'active';
     final formKey = GlobalKey<FormState>();
  
@@ -44,14 +48,23 @@ class TechniciansScreen extends StatelessWidget {
                     validator: (v) => v == null || v.trim().isEmpty ? 'Ingresa el nombre' : null,
                   ),
                   const SizedBox(height: 12),
-                  if (!isEdit)
+                  if (!isEdit) ...[
                     TextFormField(
                       controller: emailController,
                       decoration: const InputDecoration(labelText: 'Correo electrónico'),
                       style: const TextStyle(color: Colors.white),
                       validator: (v) => v == null || v.trim().isEmpty ? 'Ingresa el correo' : null,
                     ),
-                  if (!isEdit) const SizedBox(height: 12),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: passwordController,
+                      decoration: const InputDecoration(labelText: 'Contraseña'),
+                      style: const TextStyle(color: Colors.white),
+                      obscureText: true,
+                      validator: (v) => v == null || v.length < 6 ? 'Mínimo 6 caracteres' : null,
+                    ),
+                    const SizedBox(height: 12),
+                  ],
                   TextFormField(
                     controller: phoneController,
                     decoration: const InputDecoration(labelText: 'Teléfono'),
@@ -59,23 +72,27 @@ class TechniciansScreen extends StatelessWidget {
                     validator: (v) => v == null || v.trim().isEmpty ? 'Ingresa el teléfono' : null,
                   ),
                   const SizedBox(height: 12),
-                  // ✅ Especialidad como dropdown solo en creación
-                  if (!isEdit)
-                    DropdownButtonFormField<String>(
-                      value: specController.text.isEmpty ? 'FIBRA' : specController.text,
-                      dropdownColor: const Color(0xFF1E293B),
-                      decoration: const InputDecoration(labelText: 'Especialidad'),
-                      style: const TextStyle(color: Colors.white),
-                      items: validSpecialties.map((spec) {
-                        return DropdownMenuItem(value: spec, child: Text(spec));
-                      }).toList(),
-                      onChanged: (val) {
-                        if (val != null) {
-                          specController.text = val;
-                        }
-                      },
-                      validator: (v) => v == null || v.isEmpty ? 'Selecciona una especialidad' : null,
-                    ),
+                  TextFormField(
+                    controller: docNumController,
+                    decoration: const InputDecoration(labelText: 'Nro de documento'),
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  const SizedBox(height: 12),
+                  DropdownButtonFormField<String>(
+                    value: selectedSpecialization,
+                    dropdownColor: const Color(0xFF1E293B),
+                    decoration: const InputDecoration(labelText: 'Especialidad'),
+                    style: const TextStyle(color: Colors.white),
+                    items: validSpecialties.map((spec) {
+                      return DropdownMenuItem(value: spec, child: Text(spec));
+                    }).toList(),
+                    onChanged: (val) {
+                      if (val != null) {
+                        selectedSpecialization = val;
+                      }
+                    },
+                    validator: (v) => v == null || v.isEmpty ? 'Selecciona una especialidad' : null,
+                  ),
                   if (isEdit) ...[
                     const SizedBox(height: 12),
                     DropdownButtonFormField<String>(
@@ -102,13 +119,14 @@ class TechniciansScreen extends StatelessWidget {
             FilledButton(
               onPressed: () async {
                 if (formKey.currentState!.validate()) {
-                  // ✅ Campos condicionados según isEdit
                   final data = {
                     'full_name': nameController.text.trim(),
                     'phone': phoneController.text.trim(),
+                    'document_number': docNumController.text.trim(),
+                    'specialization': selectedSpecialization,
                     if (!isEdit) ...{
                       'email': emailController.text.trim(),
-                      'specialty': specController.text.trim(),
+                      'password': passwordController.text.trim(),
                     },
                     if (isEdit) ...{
                       'status': status,
@@ -256,7 +274,7 @@ class TechniciansScreen extends StatelessWidget {
                                   const SizedBox(width: 12),
                                   const Icon(Icons.workspace_premium_outlined, size: 14, color: Colors.white38),
                                   const SizedBox(width: 4),
-                                  Text(tech.specialty, style: const TextStyle(color: Colors.white70, fontSize: 12)),
+                                  Text(tech.specialization, style: const TextStyle(color: Colors.white70, fontSize: 12)),
                                 ],
                               ),
                               const SizedBox(height: 6),

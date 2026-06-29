@@ -57,7 +57,10 @@ class _TicketsAdminScreenState extends State<TicketsAdminScreen> {
   }
  
   void _showStatusDialog(BuildContext context, AdminProvider provider, TicketModel ticket) {
+    _pollingTimer?.cancel();
+
     String selectedStatus = validStatuses.contains(ticket.status) ? ticket.status : 'open';
+    final notesController = TextEditingController();
  
     showDialog(
       context: context,
@@ -65,23 +68,41 @@ class _TicketsAdminScreenState extends State<TicketsAdminScreen> {
         return AlertDialog(
           backgroundColor: const Color(0xFF1E293B),
           title: const Text('Actualizar Estado', style: TextStyle(color: Colors.white)),
-          content: StatefulBuilder(
-            builder: (context, setState) {
-              return DropdownButtonFormField<String>(
-                value: selectedStatus,
-                dropdownColor: const Color(0xFF1E293B),
-                decoration: const InputDecoration(labelText: 'Nuevo estado'),
-                style: const TextStyle(color: Colors.white),
-                items: validStatuses.map((st) {
-                  return DropdownMenuItem(value: st, child: Text(st.cleanStatus()));
-                }).toList(),
-                onChanged: (val) {
-                  if (val != null) {
-                    setState(() => selectedStatus = val);
-                  }
-                },
-              );
-            },
+          content: SingleChildScrollView(
+            child: StatefulBuilder(
+              builder: (dialogContext, setDialogState) {
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    DropdownButtonFormField<String>(
+                      value: selectedStatus,
+                      dropdownColor: const Color(0xFF1E293B),
+                      decoration: const InputDecoration(labelText: 'Nuevo estado'),
+                      style: const TextStyle(color: Colors.white),
+                      items: validStatuses.map((st) {
+                        return DropdownMenuItem(value: st, child: Text(st.cleanStatus()));
+                      }).toList(),
+                      onChanged: (val) {
+                        if (val != null) {
+                          setDialogState(() => selectedStatus = val);
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: notesController,
+                      maxLines: 3,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: const InputDecoration(
+                        labelText: 'Notas de Resolución (Opcional)',
+                        hintText: 'Escribe detalles de la resolución...',
+                        hintStyle: TextStyle(color: Colors.white30),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
           ),
           actions: [
             TextButton(
@@ -91,11 +112,14 @@ class _TicketsAdminScreenState extends State<TicketsAdminScreen> {
             FilledButton(
               onPressed: () async {
                 try {
-                  await provider.updateTicketStatus(ticket.id, selectedStatus);
+                  await provider.updateTicketStatus(
+                    ticket.id,
+                    selectedStatus,
+                    resolutionNotes: notesController.text,
+                  );
                   if (ctx.mounted) Navigator.of(ctx).pop();
-                  if (context.mounted) showMessage(context, 'Estado de ticket actualizado.');
                 } catch (e) {
-                  showMessage(context, e.toString());
+                  if (ctx.mounted) showMessage(ctx, e.toString());
                 }
               },
               child: const Text('Actualizar'),
@@ -103,12 +127,22 @@ class _TicketsAdminScreenState extends State<TicketsAdminScreen> {
           ],
         );
       },
-    );
+    ).then((_) {
+      notesController.dispose();
+      if (mounted) {
+        _pollingTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
+          if (mounted) {
+            final provider = AppStateProvider.of<AdminProvider>(context);
+            provider.loadTickets();
+          }
+        });
+      }
+    });
   }
  
   @override
   Widget build(BuildContext context) {
-    final adminProvider = AppStateProvider.of<AdminProvider>(context);
+    final adminProvider = AppStateProvider.read<AdminProvider>(context);
  
     return AppPage(
       title: 'Tickets Soporte',

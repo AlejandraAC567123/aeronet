@@ -15,7 +15,7 @@ class PlansScreen extends StatelessWidget {
   void _showFormDialog(BuildContext context, AdminProvider provider, [PlanModel? plan]) {
     final isEdit = plan != null;
     final nameController = TextEditingController(text: plan?.name);
-    final speedController = TextEditingController(text: plan?.downloadSpeed.toString());
+    final speedController = TextEditingController(text: plan?.speedMbps.toString());
     final priceController = TextEditingController(text: plan?.price.toString());
     final descController = TextEditingController(text: plan?.description);
     final formKey = GlobalKey<FormState>();

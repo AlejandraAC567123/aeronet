@@ -7,6 +7,8 @@ class CustomerModel {
   final String documentNumber;
   final String avatarUrl;
   final String phone;
+  final String address;
+  final String city;
 
   CustomerModel({
     required this.id,
@@ -17,6 +19,8 @@ class CustomerModel {
     required this.documentNumber,
     required this.avatarUrl,
     required this.phone,
+    required this.address,
+    required this.city,
   });
 
   factory CustomerModel.fromJson(Map<String, dynamic> json) {
@@ -29,6 +33,8 @@ class CustomerModel {
       documentNumber: '${json['document_number'] ?? ''}',
       avatarUrl: '${json['avatar_url'] ?? ''}',
       phone: '${json['phone'] ?? ''}',
+      address: '${json['address'] ?? ''}',
+      city: '${json['city'] ?? ''}',
     );
   }
 
@@ -42,6 +48,8 @@ class CustomerModel {
       'document_number': documentNumber,
       'avatar_url': avatarUrl,
       'phone': phone,
+      'address': address,
+      'city': city,
     };
   }
 }

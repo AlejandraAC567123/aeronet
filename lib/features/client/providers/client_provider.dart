@@ -132,24 +132,36 @@ class ClientProvider extends ChangeNotifier {
   // Request Installation
   Future<void> requestInstallation({
     required String planId,
-    required String address,
-    required String reference,
+    required String fullName,
+    required String documentType,
+    required String documentNumber,
+    required String phone,
+    required String addressText,
     double? latitude,
     double? longitude,
+    String? ticketSubject,
+    String? ticketDescription,
+    String? ticketPriority,
   }) async {
     _isLoading = true;
     notifyListeners();
     try {
       await ServiceRepository.instance.requestInstallation(
         planId: planId,
-        address: address,
-        reference: reference,
+        fullName: fullName,
+        documentType: documentType,
+        documentNumber: documentNumber,
+        phone: phone,
+        addressText: addressText,
         latitude: latitude,
         longitude: longitude,
+        ticketSubject: ticketSubject,
+        ticketDescription: ticketDescription,
+        ticketPriority: ticketPriority,
       );
       await LocalNotifier.instance.show(
         'Solicitud de Instalación',
-        'Tu pedido de instalación en $address ha sido recibido.',
+        'Tu pedido de instalación en $addressText ha sido recibido.',
       );
       await _fetchServices();
     } finally {

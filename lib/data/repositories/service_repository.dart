@@ -20,18 +20,30 @@ class ServiceRepository {
 
   Future<ServiceModel> requestInstallation({
     required String planId,
-    required String address,
-    required String reference,
+    required String fullName,
+    required String documentType,
+    required String documentNumber,
+    required String phone,
+    required String addressText,
     double? latitude,
     double? longitude,
+    String? ticketSubject,
+    String? ticketDescription,
+    String? ticketPriority,
   }) async {
     // Call the dedicated direct services installer endpoint
     final response = await ApiClient.instance.post('/services/with-ticket', {
       'plan_id': planId,
-      'address': address,
-      'reference': reference,
+      'full_name': fullName,
+      'document_type': documentType,
+      'document_number': documentNumber,
+      'phone': phone,
+      'address_text': addressText,
       if (latitude != null) 'latitude': latitude,
       if (longitude != null) 'longitude': longitude,
+      'ticket_subject': ticketSubject ?? 'Solicitud de Instalación',
+      'ticket_description': ticketDescription ?? 'Solicitud de instalación de plan de internet',
+      'ticket_priority': ticketPriority ?? 'ALTA',
     });
     return ServiceModel.fromJson(asMap(response));
   }

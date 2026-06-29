@@ -145,7 +145,13 @@ class AdminProvider extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
     try {
-      await CustomerRepository.instance.createCustomer(data);
+      if (data.containsKey('password')) {
+        // Con contraseña → /auth/signup-client (crea usuario + perfil)
+        await CustomerRepository.instance.signupClient(data);
+      } else {
+        // Sin contraseña → /customers (solo perfil)
+        await CustomerRepository.instance.createCustomer(data);
+      }
       await _fetchCustomers();
     } finally {
       _isLoading = false;
@@ -215,9 +221,13 @@ class AdminProvider extends ChangeNotifier {
   }
 
   // Ticket status update
-  Future<void> updateTicketStatus(String id, String status) async {
+  Future<void> updateTicketStatus(String id, String status, {String? resolutionNotes}) async {
     try {
-      await TicketRepository.instance.updateTicket(id, {'status': status});
+      await TicketRepository.instance.updateTicket(id, {
+        'status': status,
+        if (resolutionNotes != null && resolutionNotes.trim().isNotEmpty)
+          'resolution_notes': resolutionNotes.trim(),
+      });
       await _fetchTickets();
     } catch (_) {}
   }

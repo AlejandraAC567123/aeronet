@@ -8,6 +8,8 @@ import 'package:aeronet_app_flutter/shared/widgets/error_state.dart';
 import 'package:aeronet_app_flutter/shared/widgets/empty_state.dart';
 import 'package:aeronet_app_flutter/features/client/widgets/service_card.dart';
 import 'package:aeronet_app_flutter/core/utils/helpers.dart';
+import 'package:aeronet_app_flutter/data/repositories/customer_repository.dart';
+import 'package:aeronet_app_flutter/data/models/customer_model.dart';
 
 class ServicesScreen extends StatelessWidget {
   const ServicesScreen({super.key});
@@ -82,18 +84,56 @@ class ServiceRequestPage extends StatefulWidget {
 
 class _ServiceRequestPageState extends State<ServiceRequestPage> {
   final _formKey = GlobalKey<FormState>();
+  final _fullNameController = TextEditingController();
+  final _documentNumberController = TextEditingController();
+  final _phoneController = TextEditingController();
   final _addressController = TextEditingController();
   final _referenceController = TextEditingController();
+  String? _selectedDocumentType = 'DNI';
   String? _selectedPlanId;
   Position? _currentPosition;
   bool _fetchingLocation = false;
   bool _submitting = false;
+  bool _loadingProfile = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfile();
+  }
 
   @override
   void dispose() {
+    _fullNameController.dispose();
+    _documentNumberController.dispose();
+    _phoneController.dispose();
     _addressController.dispose();
     _referenceController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadProfile() async {
+    setState(() => _loadingProfile = true);
+    try {
+      final CustomerModel profile = await CustomerRepository.instance.getMe();
+      setState(() {
+        _fullNameController.text = profile.fullName;
+        _phoneController.text = profile.phone;
+        _documentNumberController.text = profile.documentNumber;
+        if (['DNI', 'RUC'].contains(profile.documentType)) {
+          _selectedDocumentType = profile.documentType;
+        } else {
+          _selectedDocumentType = 'DNI';
+        }
+        _addressController.text = profile.address;
+      });
+    } catch (_) {
+      // Ignore profile loading errors, allow manual entry
+    } finally {
+      if (mounted) {
+        setState(() => _loadingProfile = false);
+      }
+    }
   }
 
   Future<void> _getLocation() async {
@@ -125,19 +165,28 @@ class _ServiceRequestPageState extends State<ServiceRequestPage> {
   }
 
   Future<void> _submit(ClientProvider provider) async {
-    if (!_formKey.currentState!.validate() || _selectedPlanId == null) {
+    if (!_formKey.currentState!.validate() || _selectedPlanId == null || _selectedDocumentType == null) {
       showMessage(context, 'Por favor completa los campos y selecciona un plan.');
       return;
     }
 
     setState(() => _submitting = true);
     try {
+      final selectedPlan = provider.allPlans.firstWhere((p) => p.id == _selectedPlanId);
       await provider.requestInstallation(
         planId: _selectedPlanId!,
-        address: _addressController.text.trim(),
-        reference: _referenceController.text.trim(),
+        fullName: _fullNameController.text.trim(),
+        documentType: _selectedDocumentType!,
+        documentNumber: _documentNumberController.text.trim(),
+        phone: _phoneController.text.trim(),
+        addressText: _addressController.text.trim(),
         latitude: _currentPosition?.latitude,
         longitude: _currentPosition?.longitude,
+        ticketSubject: 'Solicitud de Instalación - ${selectedPlan.name}',
+        ticketDescription: _referenceController.text.trim().isNotEmpty
+            ? 'Instalación de plan ${selectedPlan.name}. Referencia: ${_referenceController.text.trim()}'
+            : 'Instalación de plan ${selectedPlan.name}.',
+        ticketPriority: 'ALTA',
       );
       if (mounted) {
         Navigator.of(context).pop();
@@ -193,6 +242,14 @@ class _ServiceRequestPageState extends State<ServiceRequestPage> {
                     style: TextStyle(fontSize: 13, color: Colors.white60),
                   ),
                   const SizedBox(height: 24),
+
+                  if (_loadingProfile) ...[
+                    const LinearProgressIndicator(
+                      backgroundColor: Colors.white10,
+                      valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF2DD4BF)),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
                   
                   // Plan Select dropdown
                   DropdownButtonFormField<String>(
@@ -215,6 +272,79 @@ class _ServiceRequestPageState extends State<ServiceRequestPage> {
                       });
                     },
                     validator: (val) => val == null ? 'Selecciona un plan' : null,
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Nombre Completo
+                  TextFormField(
+                    controller: _fullNameController,
+                    decoration: const InputDecoration(
+                      labelText: 'Nombre Completo',
+                      prefixIcon: Icon(Icons.person_outline),
+                    ),
+                    style: const TextStyle(color: Colors.white),
+                    validator: (val) => val == null || val.trim().isEmpty
+                        ? 'Ingresa el nombre completo'
+                        : null,
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Tipo / Nro Documento
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: DropdownButtonFormField<String>(
+                          value: _selectedDocumentType,
+                          decoration: const InputDecoration(
+                            labelText: 'Tipo',
+                          ),
+                          dropdownColor: const Color(0xFF1E293B),
+                          style: const TextStyle(color: Colors.white, fontSize: 15),
+                          items: const [
+                            DropdownMenuItem(value: 'DNI', child: Text('DNI')),
+                            DropdownMenuItem(value: 'RUC', child: Text('RUC')),
+                          ],
+                          onChanged: (val) {
+                            setState(() {
+                              _selectedDocumentType = val;
+                            });
+                          },
+                          validator: (val) => val == null ? 'Requerido' : null,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        flex: 3,
+                        child: TextFormField(
+                          controller: _documentNumberController,
+                          decoration: const InputDecoration(
+                            labelText: 'Nro Documento',
+                          ),
+                          style: const TextStyle(color: Colors.white),
+                          keyboardType: TextInputType.number,
+                          validator: (val) => val == null || val.trim().isEmpty
+                              ? 'Ingresa el número'
+                              : null,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Teléfono
+                  TextFormField(
+                    controller: _phoneController,
+                    decoration: const InputDecoration(
+                      labelText: 'Teléfono / Celular',
+                      prefixIcon: Icon(Icons.phone_outlined),
+                    ),
+                    style: const TextStyle(color: Colors.white),
+                    keyboardType: TextInputType.phone,
+                    validator: (val) => val == null || val.trim().isEmpty
+                        ? 'Ingresa el teléfono'
+                        : null,
                   ),
                   const SizedBox(height: 16),
 

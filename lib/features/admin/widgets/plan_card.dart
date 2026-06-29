@@ -36,7 +36,7 @@ class PlanCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    'Bajada: ${plan.downloadSpeed} Mbps / Subida: ${plan.uploadSpeed} Mbps',
+                    'Velocidad: ${plan.speedMbps} Mbps',
                     style: const TextStyle(
                       fontSize: 13,
                       color: Colors.white70,

@@ -53,13 +53,9 @@ class ServiceCard extends StatelessWidget {
             if (plan != null) ...[
               Row(
                 children: [
-                  const Icon(Icons.arrow_downward, size: 16, color: Color(0xFF2DD4BF)),
-                  const SizedBox(width: 4),
-                  Text('${plan.downloadSpeed} Mbps Bajada', style: const TextStyle(color: Colors.white70)),
-                  const SizedBox(width: 16),
-                  const Icon(Icons.arrow_upward, size: 16, color: Color(0xFF2DD4BF)),
-                  const SizedBox(width: 4),
-                  Text('${plan.uploadSpeed} Mbps Subida', style: const TextStyle(color: Colors.white70)),
+                  const Icon(Icons.speed_outlined, size: 18, color: Color(0xFF2DD4BF)),
+                  const SizedBox(width: 6),
+                  Text('Velocidad: ${plan.speedMbps} Mbps', style: const TextStyle(color: Colors.white70)),
                 ],
               ),
               const SizedBox(height: 12),

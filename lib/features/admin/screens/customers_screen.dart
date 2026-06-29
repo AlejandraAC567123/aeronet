@@ -20,9 +20,10 @@ class CustomersScreen extends StatelessWidget {
     final emailController = TextEditingController(text: customer?.email);
     final phoneController = TextEditingController(text: customer?.phone);
     final docNumController = TextEditingController(text: customer?.documentNumber);
-    final passwordController = TextEditingController(); // ✅ Para capturar contraseña
+    final addressController = TextEditingController(text: customer?.address);
+    final cityController = TextEditingController(text: customer?.city);
+    final passwordController = TextEditingController();
     String docType = customer?.documentType.isNotEmpty == true ? customer!.documentType : 'DNI';
-    String role = customer?.role.isNotEmpty == true ? customer!.role : 'client';
     final formKey = GlobalKey<FormState>();
 
     showDialog(
@@ -37,23 +38,21 @@ class CustomersScreen extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  TextFormField(
-                    controller: nameController,
-                    decoration: const InputDecoration(labelText: 'Nombre completo'),
-                    style: const TextStyle(color: Colors.white),
-                    validator: (v) => v == null || v.trim().isEmpty ? 'Ingresa el nombre' : null,
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: emailController,
-                    decoration: const InputDecoration(labelText: 'Correo electrónico'),
-                    style: const TextStyle(color: Colors.white),
-                    validator: (v) => v == null || v.trim().isEmpty ? 'Ingresa el correo' : null,
-                    enabled: !isEdit, // block editing email
-                  ),
-                  const SizedBox(height: 12),
                   if (!isEdit) ...[
-                    // ✅ Campo de contraseña solo al crear
+                    TextFormField(
+                      controller: nameController,
+                      decoration: const InputDecoration(labelText: 'Nombre completo'),
+                      style: const TextStyle(color: Colors.white),
+                      validator: (v) => v == null || v.trim().isEmpty ? 'Ingresa el nombre' : null,
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: emailController,
+                      decoration: const InputDecoration(labelText: 'Correo electrónico'),
+                      style: const TextStyle(color: Colors.white),
+                      validator: (v) => v == null || v.trim().isEmpty ? 'Ingresa el correo' : null,
+                    ),
+                    const SizedBox(height: 12),
                     TextFormField(
                       controller: passwordController,
                       decoration: const InputDecoration(labelText: 'Contraseña'),
@@ -61,45 +60,51 @@ class CustomersScreen extends StatelessWidget {
                       obscureText: true,
                       validator: (v) => v == null || v.length < 6 ? 'Mínimo 6 caracteres' : null,
                     ),
+                  ] else ...[
+                    TextFormField(
+                      controller: nameController,
+                      decoration: const InputDecoration(labelText: 'Nombre completo'),
+                      style: const TextStyle(color: Colors.white),
+                      validator: (v) => v == null || v.trim().isEmpty ? 'Ingresa el nombre' : null,
+                    ),
                     const SizedBox(height: 12),
-                  ],
-                  DropdownButtonFormField<String>(
-                    value: docType,
-                    dropdownColor: const Color(0xFF1E293B),
-                    decoration: const InputDecoration(labelText: 'Tipo de documento'),
-                    items: ['DNI', 'RUC', 'PASAPORTE', 'CE'].map((t) {
-                      return DropdownMenuItem(value: t, child: Text(t));
-                    }).toList(),
-                    onChanged: (val) {
-                      if (val != null) docType = val;
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: docNumController,
-                    decoration: const InputDecoration(labelText: 'Nro de documento'),
-                    style: const TextStyle(color: Colors.white),
-                    validator: (v) => v == null || v.trim().isEmpty ? 'Ingresa el nro de documento' : null,
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: phoneController,
-                    decoration: const InputDecoration(labelText: 'Teléfono'),
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                  const SizedBox(height: 12),
-                  // ✅ Rol solo: client, prospect (sin admin)
-                  DropdownButtonFormField<String>(
-                    value: role,
-                    dropdownColor: const Color(0xFF1E293B),
-                    decoration: const InputDecoration(labelText: 'Rol'),
-                    items: ['client', 'prospect'].map((r) {
-                      return DropdownMenuItem(value: r, child: Text(r.toUpperCase()));
-                    }).toList(),
-                    onChanged: (val) {
-                      if (val != null) role = val;
-                    },
-                  ),
+                    TextFormField(
+                      controller: phoneController,
+                      decoration: const InputDecoration(labelText: 'Teléfono'),
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                    const SizedBox(height: 12),
+                    DropdownButtonFormField<String>(
+                      value: docType,
+                      dropdownColor: const Color(0xFF1E293B),
+                      decoration: const InputDecoration(labelText: 'Tipo de documento'),
+                      items: ['DNI', 'RUC', 'PASAPORTE', 'CE'].map((t) {
+                        return DropdownMenuItem(value: t, child: Text(t));
+                      }).toList(),
+                      onChanged: (val) {
+                        if (val != null) docType = val;
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: docNumController,
+                      decoration: const InputDecoration(labelText: 'Nro de documento'),
+                      style: const TextStyle(color: Colors.white),
+                      validator: (v) => v == null || v.trim().isEmpty ? 'Ingresa el nro de documento' : null,
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: addressController,
+                      decoration: const InputDecoration(labelText: 'Dirección'),
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: cityController,
+                      decoration: const InputDecoration(labelText: 'Ciudad'),
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  ]
                 ],
               ),
             ),
@@ -112,18 +117,20 @@ class CustomersScreen extends StatelessWidget {
             FilledButton(
               onPressed: () async {
                 if (formKey.currentState!.validate()) {
-                  final data = {
-                    'full_name': nameController.text.trim(),
-                    'email': emailController.text.trim(),
-                    'phone': phoneController.text.trim(),
-                    'document_type': docType,
-                    'document_number': docNumController.text.trim(),
-                    'role': role,
-                    // ✅ Agregar contraseña al crear
-                    if (!isEdit) ...{
-                      'password': passwordController.text.trim(),
-                    },
-                  };
+                  final data = isEdit
+                      ? {
+                          'full_name': nameController.text.trim(),
+                          'phone': phoneController.text.trim(),
+                          'document_type': docType,
+                          'document_number': docNumController.text.trim(),
+                          'address': addressController.text.trim(),
+                          'city': cityController.text.trim(),
+                        }
+                      : {
+                          'full_name': nameController.text.trim(),
+                          'email': emailController.text.trim(),
+                          'password': passwordController.text.trim(),
+                        };
                   try {
                     if (isEdit) {
                       await provider.updateCustomer(customer.id, data);

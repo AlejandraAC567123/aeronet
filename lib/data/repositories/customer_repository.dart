@@ -18,9 +18,15 @@ class CustomerRepository {
     return CustomerModel.fromJson(asMap(response));
   }
 
+  /// Crea un cliente sin contraseña (solo perfil)
   Future<CustomerModel> createCustomer(Map<String, dynamic> data) async {
     final response = await ApiClient.instance.post('/customers', data);
     return CustomerModel.fromJson(asMap(response));
+  }
+
+  /// Crea un cliente con cuenta de usuario (incluye password) → usa /auth/signup-client
+  Future<void> signupClient(Map<String, dynamic> data) async {
+    await ApiClient.instance.post('/auth/signup-client', data);
   }
 
   Future<CustomerModel> updateCustomer(String id, Map<String, dynamic> data) async {
