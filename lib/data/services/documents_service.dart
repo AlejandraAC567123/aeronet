@@ -8,12 +8,14 @@ class DocumentsService {
   Future<List<Map<String, dynamic>>> getInvoiceDocuments(String invoiceId) async {
     try {
       final response = await ApiClient.instance.get(
-        '/documentos-electrónicos/factura/$invoiceId',
+        '/electronic-documents/invoice/$invoiceId',
       );
       
       // Response es lista de documentos
       if (response is List) {
         return List<Map<String, dynamic>>.from(response);
+      } else if (response is Map<String, dynamic>) {
+        return [response];
       }
       return [];
     } catch (e) {
@@ -23,7 +25,7 @@ class DocumentsService {
 
   /// URL del PDF para descargar
   String getPdfUrl(Map<String, dynamic> document) {
-    return document['pdf_url'] ?? '';
+    return (document['pdf_url'] ?? document['pdf_link'] ?? '').toString();
   }
 
   /// Tipo de documento (BOLETA, FACTURA, etc.)

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:aeronet_app_flutter/core/utils/app_state_provider.dart';
-import 'package:aeronet_app_flutter/features/admin/providers/admin_provider.dart';
+import 'package:aeronet_app_flutter/features/admin/providers/plans_admin_provider.dart';
 import 'package:aeronet_app_flutter/shared/widgets/app_page.dart';
 import 'package:aeronet_app_flutter/shared/widgets/loading_widget.dart';
 import 'package:aeronet_app_flutter/shared/widgets/error_state.dart';
@@ -9,10 +9,17 @@ import 'package:aeronet_app_flutter/features/admin/widgets/plan_card.dart';
 import 'package:aeronet_app_flutter/data/models/plan_model.dart';
 import 'package:aeronet_app_flutter/core/utils/helpers.dart';
 
-class PlansScreen extends StatelessWidget {
-  const PlansScreen({super.key});
+class PlansScreen extends StatefulWidget {
+  final Widget? drawer;
+  const PlansScreen({super.key, this.drawer});
 
-  void _showFormDialog(BuildContext context, AdminProvider provider, [PlanModel? plan]) {
+  @override
+  State<PlansScreen> createState() => _PlansScreenState();
+}
+
+class _PlansScreenState extends State<PlansScreen> {
+
+  void _showFormDialog(BuildContext context, PlansAdminProvider provider, [PlanModel? plan]) {
     final isEdit = plan != null;
     final nameController = TextEditingController(text: plan?.name);
     final speedController = TextEditingController(text: plan?.speedMbps.toString());
@@ -99,7 +106,7 @@ class PlansScreen extends StatelessWidget {
     );
   }
 
-  void _confirmDelete(BuildContext context, AdminProvider provider, String id) {
+  void _confirmDelete(BuildContext context, PlansAdminProvider provider, String id) {
     showDialog(
       context: context,
       builder: (ctx) {
@@ -130,11 +137,29 @@ class PlansScreen extends StatelessWidget {
     );
   }
 
+  late final PlansAdminProvider _provider;
+
+  @override
+  void initState() {
+    super.initState();
+    _provider = PlansAdminProvider();
+    _provider.loadPlans();
+  }
+
+  @override
+  void dispose() {
+    _provider.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final adminProvider = AppStateProvider.of<AdminProvider>(context);
+    final adminProvider = _provider;
 
-    return AppPage(
+    return AppStateProvider<PlansAdminProvider>(
+      notifier: _provider,
+      child: AppPage(
+        drawer: widget.drawer,
       title: 'Planes',
       subtitle: 'Catálogo de Internet ISP',
       actions: [
@@ -183,6 +208,6 @@ class PlansScreen extends StatelessWidget {
           },
         ),
       ),
-    );
+    ));
   }
 }

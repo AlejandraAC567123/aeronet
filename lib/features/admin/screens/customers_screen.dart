@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:aeronet_app_flutter/core/utils/app_state_provider.dart';
-import 'package:aeronet_app_flutter/features/admin/providers/admin_provider.dart';
+import 'package:aeronet_app_flutter/features/admin/providers/customers_admin_provider.dart';
 import 'package:aeronet_app_flutter/shared/widgets/app_page.dart';
 import 'package:aeronet_app_flutter/shared/widgets/loading_widget.dart';
 import 'package:aeronet_app_flutter/shared/widgets/error_state.dart';
@@ -11,10 +11,17 @@ import 'package:aeronet_app_flutter/core/utils/helpers.dart';
 import 'package:aeronet_app_flutter/core/routes/app_routes.dart';
 import 'package:aeronet_app_flutter/features/auth/providers/auth_provider.dart';
 
-class CustomersScreen extends StatelessWidget {
-  const CustomersScreen({super.key});
+class CustomersScreen extends StatefulWidget {
+  final Widget? drawer;
+  const CustomersScreen({super.key, this.drawer});
 
-  void _showFormDialog(BuildContext context, AdminProvider provider, [CustomerModel? customer]) {
+  @override
+  State<CustomersScreen> createState() => _CustomersScreenState();
+}
+
+class _CustomersScreenState extends State<CustomersScreen> {
+
+  void _showFormDialog(BuildContext context, CustomersAdminProvider provider, [CustomerModel? customer]) {
     final isEdit = customer != null;
     final nameController = TextEditingController(text: customer?.fullName);
     final emailController = TextEditingController(text: customer?.email);
@@ -151,7 +158,7 @@ class CustomersScreen extends StatelessWidget {
     );
   }
 
-  void _confirmDelete(BuildContext context, AdminProvider provider, String id) {
+  void _confirmDelete(BuildContext context, CustomersAdminProvider provider, String id) {
     showDialog(
       context: context,
       builder: (ctx) {
@@ -182,12 +189,30 @@ class CustomersScreen extends StatelessWidget {
     );
   }
 
+  late final CustomersAdminProvider _provider;
+
+  @override
+  void initState() {
+    super.initState();
+    _provider = CustomersAdminProvider();
+    _provider.loadCustomers();
+  }
+
+  @override
+  void dispose() {
+    _provider.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final adminProvider = AppStateProvider.of<AdminProvider>(context);
+    final adminProvider = _provider;
     final authProvider = AppStateProvider.of<AuthProvider>(context);
 
-    return AppPage(
+    return AppStateProvider<CustomersAdminProvider>(
+      notifier: _provider,
+      child: AppPage(
+        drawer: widget.drawer,
       title: 'Clientes',
       subtitle: 'Control de Usuarios ISP',
       actions: [
@@ -246,6 +271,6 @@ class CustomersScreen extends StatelessWidget {
           },
         ),
       ),
-    );
+    ));
   }
 }

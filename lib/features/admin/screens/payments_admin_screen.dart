@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:aeronet_app_flutter/core/utils/app_state_provider.dart';
-import 'package:aeronet_app_flutter/features/admin/providers/admin_provider.dart';
+import 'package:aeronet_app_flutter/features/admin/providers/payments_admin_provider.dart';
 import 'package:aeronet_app_flutter/shared/widgets/app_page.dart';
 import 'package:aeronet_app_flutter/shared/widgets/loading_widget.dart';
 import 'package:aeronet_app_flutter/shared/widgets/error_state.dart';
@@ -8,14 +8,39 @@ import 'package:aeronet_app_flutter/shared/widgets/empty_state.dart';
 import 'package:aeronet_app_flutter/shared/widgets/glass_container.dart';
 import 'package:aeronet_app_flutter/core/utils/helpers.dart';
 
-class PaymentsAdminScreen extends StatelessWidget {
-  const PaymentsAdminScreen({super.key});
+class PaymentsAdminScreen extends StatefulWidget {
+  final Widget? drawer;
+  const PaymentsAdminScreen({super.key, this.drawer});
+
+  @override
+  State<PaymentsAdminScreen> createState() => _PaymentsAdminScreenState();
+}
+
+class _PaymentsAdminScreenState extends State<PaymentsAdminScreen> {
+
+  late final PaymentsAdminProvider _provider;
+
+  @override
+  void initState() {
+    super.initState();
+    _provider = PaymentsAdminProvider();
+    _provider.loadPayments();
+  }
+
+  @override
+  void dispose() {
+    _provider.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final adminProvider = AppStateProvider.of<AdminProvider>(context);
+    final adminProvider = _provider;
 
-    return AppPage(
+    return AppStateProvider<PaymentsAdminProvider>(
+      notifier: _provider,
+      child: AppPage(
+        drawer: widget.drawer,
       title: 'Historial de Pagos',
       subtitle: 'Pagos registrados en el sistema',
       actions: [
@@ -117,6 +142,6 @@ class PaymentsAdminScreen extends StatelessWidget {
           },
         ),
       ),
-    );
+    ));
   }
 }

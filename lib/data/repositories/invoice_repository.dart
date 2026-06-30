@@ -23,6 +23,27 @@ class InvoiceRepository {
     return InvoiceModel.fromJson(asMap(response));
   }
 
+  Future<InvoiceModel> createInvoice(Map<String, dynamic> data) async {
+    final response = await ApiClient.instance.post('/invoices', data);
+    return InvoiceModel.fromJson(asMap(response));
+  }
+
+  Future<void> deleteInvoice(String id) async {
+    await ApiClient.instance.delete('/invoices/$id');
+  }
+
+  Future<void> generateMonthlyInvoices(String period) async {
+    await ApiClient.instance.post('/invoices/generate-monthly?period=$period', {});
+  }
+
+  Future<void> forceBilling() async {
+    await ApiClient.instance.post('/invoices/force-billing', {});
+  }
+
+  Future<void> sendWhatsappReminder(String id) async {
+    await ApiClient.instance.post('/invoices/$id/send-whatsapp', {});
+  }
+
   // Generate Mercado Pago Link
   // NOTA: /payments/generate-link no existe aún en el backend.
   // Usamos /payments/simulate como fallback hasta que Alejandro lo implemente.

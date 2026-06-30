@@ -12,13 +12,15 @@ import 'package:aeronet_app_flutter/data/repositories/customer_repository.dart';
 import 'package:aeronet_app_flutter/data/models/customer_model.dart';
 
 class ServicesScreen extends StatelessWidget {
-  const ServicesScreen({super.key});
+  final Widget? drawer;
+  const ServicesScreen({super.key, this.drawer});
 
   @override
   Widget build(BuildContext context) {
     final clientProvider = AppStateProvider.of<ClientProvider>(context);
 
     return AppPage(
+      drawer: drawer,
       title: 'Mis Servicios',
       subtitle: 'Instalaciones y Conexiones',
       actions: [

@@ -7,17 +7,20 @@ class AppPage extends StatelessWidget {
     required this.subtitle,
     required this.child,
     this.actions = const [],
+    this.drawer,
   });
 
   final String title;
   final String subtitle;
   final Widget child;
   final List<Widget> actions;
+  final Widget? drawer;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
+      drawer: drawer,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:aeronet_app_flutter/core/utils/app_state_provider.dart';
-import 'package:aeronet_app_flutter/features/admin/providers/admin_provider.dart';
+import 'package:aeronet_app_flutter/features/admin/providers/dashboard_admin_provider.dart';
 import 'package:aeronet_app_flutter/shared/widgets/app_page.dart';
 import 'package:aeronet_app_flutter/shared/widgets/loading_widget.dart';
 import 'package:aeronet_app_flutter/shared/widgets/error_state.dart';
@@ -9,29 +9,54 @@ import 'package:aeronet_app_flutter/shared/widgets/glass_container.dart';
 import 'package:aeronet_app_flutter/features/admin/widgets/stat_card.dart';
 import 'package:aeronet_app_flutter/core/utils/helpers.dart';
 
-class DashboardAdminScreen extends StatelessWidget {
-  const DashboardAdminScreen({super.key});
+class DashboardAdminScreen extends StatefulWidget {
+  final Widget? drawer;
+  const DashboardAdminScreen({super.key, this.drawer});
+
+  @override
+  State<DashboardAdminScreen> createState() => _DashboardAdminScreenState();
+}
+
+class _DashboardAdminScreenState extends State<DashboardAdminScreen> {
+
+  late final DashboardAdminProvider _adminProvider;
+
+  @override
+  void initState() {
+    super.initState();
+    _adminProvider = DashboardAdminProvider();
+    _adminProvider.loadDashboard();
+  }
+
+  @override
+  void dispose() {
+    _adminProvider.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final adminProvider = AppStateProvider.of<AdminProvider>(context);
+    final adminProvider = _adminProvider;
 
-    return AppPage(
+    return AppStateProvider<DashboardAdminProvider>(
+      notifier: _adminProvider,
+      child: AppPage(
+        drawer: widget.drawer,
       title: 'Panel General',
       subtitle: 'Resumen del sistema',
       child: RefreshIndicator(
-        onRefresh: () => adminProvider.loadAllAdminData(),
+        onRefresh: () => adminProvider.loadDashboard(),
         child: ListenableBuilder(
           listenable: adminProvider,
           builder: (context, _) {
-            if (adminProvider.isLoading && adminProvider.customers.isEmpty && adminProvider.payments.isEmpty) {
+            if (adminProvider.isLoading && adminProvider.totalCustomers == 0) {
               return const LoadingWidget(message: 'Cargando datos...');
             }
 
             if (adminProvider.errorMessage != null) {
               return ErrorState(
                 error: adminProvider.errorMessage!,
-                onRetry: () => adminProvider.loadAllAdminData(),
+                onRetry: () => adminProvider.loadDashboard(),
               );
             }
 
@@ -98,10 +123,10 @@ class DashboardAdminScreen extends StatelessWidget {
           },
         ),
       ),
-    );
+    ));
   }
 
-  Widget _buildRecentPayments(AdminProvider provider) {
+  Widget _buildRecentPayments(DashboardAdminProvider provider) {
     final payments = provider.recentPayments;
 
     if (payments.isEmpty) {

@@ -1,21 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:aeronet_app_flutter/core/utils/app_state_provider.dart';
-import 'package:aeronet_app_flutter/features/admin/providers/admin_provider.dart';
+import 'package:aeronet_app_flutter/features/admin/providers/invoices_admin_provider.dart';
 import 'package:aeronet_app_flutter/shared/widgets/app_page.dart';
 import 'package:aeronet_app_flutter/shared/widgets/loading_widget.dart';
 import 'package:aeronet_app_flutter/shared/widgets/error_state.dart';
 import 'package:aeronet_app_flutter/shared/widgets/empty_state.dart';
-import 'package:aeronet_app_flutter/shared/widgets/glass_container.dart';
 import 'package:aeronet_app_flutter/core/utils/helpers.dart';
 import 'package:aeronet_app_flutter/shared/extensions/string_extensions.dart';
+import 'package:aeronet_app_flutter/features/admin/widgets/admin_invoice_card.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
-class InvoicesAdminScreen extends StatelessWidget {
-  const InvoicesAdminScreen({super.key});
+class InvoicesAdminScreen extends StatefulWidget {
+  final Widget? drawer;
+  const InvoicesAdminScreen({super.key, this.drawer});
 
-  Future<void> _exportInvoicesReport(BuildContext context, AdminProvider provider) async {
+  @override
+  State<InvoicesAdminScreen> createState() => _InvoicesAdminScreenState();
+}
+
+class _InvoicesAdminScreenState extends State<InvoicesAdminScreen> {
+
+  Future<void> _exportInvoicesReport(BuildContext context, InvoicesAdminProvider provider) async {
     try {
       final pdf = pw.Document();
 
@@ -127,11 +134,29 @@ class InvoicesAdminScreen extends StatelessWidget {
 }
 
 
+  late final InvoicesAdminProvider _provider;
+
+  @override
+  void initState() {
+    super.initState();
+    _provider = InvoicesAdminProvider();
+    _provider.loadInvoices();
+  }
+
+  @override
+  void dispose() {
+    _provider.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final adminProvider = AppStateProvider.of<AdminProvider>(context);
+    final adminProvider = _provider;
 
-    return AppPage(
+    return AppStateProvider<InvoicesAdminProvider>(
+      notifier: _provider,
+      child: AppPage(
+        drawer: widget.drawer,
       title: 'Facturación',
       subtitle: 'Historial de Pagos y Deudas',
       actions: [
@@ -164,95 +189,19 @@ class InvoicesAdminScreen extends StatelessWidget {
               );
             }
 
-            return ListView.builder(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(16),
-              itemCount: adminProvider.invoices.length,
-              itemBuilder: (context, index) {
-                final invoice = adminProvider.invoices[index];
-                final isPaid = invoice.status.toLowerCase() == 'paid' || invoice.status.toLowerCase() == 'approved';
-                final isOverdue = invoice.status.toLowerCase() == 'overdue';
-                
-                Color statusColor = const Color(0xFF2DD4BF); // Teal
-                if (!isPaid) {
-                  statusColor = isOverdue ? Colors.redAccent : Colors.orangeAccent;
-                }
+              return ListView.builder(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.all(16),
+                itemCount: adminProvider.invoices.length,
+                itemBuilder: (context, index) {
+                  final invoice = adminProvider.invoices[index];
+                  return AdminInvoiceCard(invoice: invoice);
+                },
+              );
 
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: GlassContainer(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Factura #${shortId(invoice.id)}',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 15,
-                              ),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: statusColor.withOpacity(0.15),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Text(
-                                invoice.status.cleanStatus(),
-                                style: TextStyle(
-                                  color: statusColor,
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text('Cliente', style: TextStyle(color: Colors.white60, fontSize: 12)),
-                                const SizedBox(height: 4),
-                                Text(
-                                  invoice.customerName ?? invoice.customerId,
-                                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 13),
-                                ),
-                              ],
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                const Text('Monto', style: TextStyle(color: Colors.white60, fontSize: 12)),
-                                const SizedBox(height: 4),
-                                Text(
-                                  money(invoice.amount),
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w900,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            );
           },
         ),
       ),
-    );
+    ));
   }
 }

@@ -6,8 +6,7 @@ import 'package:aeronet_app_flutter/features/client/screens/services_screen.dart
 import 'package:aeronet_app_flutter/features/client/screens/tickets_client_screen.dart';
 import 'package:aeronet_app_flutter/features/client/screens/invoices_client_screen.dart';
 import 'package:aeronet_app_flutter/features/client/screens/profile_screen.dart';
-
-import 'dart:ui'; // Para ImageFilter
+import 'package:aeronet_app_flutter/shared/widgets/app_drawer.dart';
 
 class ClientShell extends StatefulWidget {
   const ClientShell({super.key});
@@ -19,19 +18,21 @@ class ClientShell extends StatefulWidget {
 class _ClientShellState extends State<ClientShell> {
   late final ClientProvider _clientProvider;
 
-  final List<Widget> _pages = const [
-    DashboardScreen(),
-    ServicesScreen(),
-    TicketsClientScreen(),
-    InvoicesClientScreen(),
-    ProfileScreen(),
-  ];
+  Widget _getPage(int index, Widget drawer) {
+    switch (index) {
+      case 0: return DashboardScreen(drawer: drawer);
+      case 1: return ServicesScreen(drawer: drawer);
+      case 2: return TicketsClientScreen(drawer: drawer);
+      case 3: return InvoicesClientScreen(drawer: drawer);
+      case 4: return ProfileScreen(drawer: drawer);
+      default: return DashboardScreen(drawer: drawer);
+    }
+  }
 
   @override
   void initState() {
     super.initState();
     _clientProvider = ClientProvider();
-    // Load initial data
     _clientProvider.loadDashboard();
     _clientProvider.loadLocalDrafts();
   }
@@ -50,63 +51,21 @@ class _ClientShellState extends State<ClientShell> {
         listenable: _clientProvider,
         builder: (context, _) {
           final tabIndex = _clientProvider.currentTabIndex;
+          
+          final drawer = AppDrawer(
+            role: 'client',
+            currentIndex: tabIndex,
+            onItemSelected: (index) {
+              _clientProvider.setTabIndex(index);
+            },
+          );
+
           return Scaffold(
-            extendBody: true, // Permite que el cuerpo se dibuje detrás de la barra inferior para el efecto blur
-            body: _pages[tabIndex],
-            bottomNavigationBar: ClipRRect(
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-                child: Container(
-                  decoration: const BoxDecoration(
-                    color: Color(0xFF10131F), // Color translúcido de fondo
-                    border: Border(
-                      top: BorderSide(color: Color(0xFF2B3150), width: 1.0),
-                    ),
-                  ),
-                  child: SafeArea(
-                    bottom: true,
-                    child: NavigationBar(
-                      selectedIndex: tabIndex,
-                      onDestinationSelected: (index) {
-                        _clientProvider.setTabIndex(index);
-                      },
-                      backgroundColor: Colors.transparent, // Transparente para ver el blur del contenedor
-                      elevation: 0,
-                  destinations: const [
-                    NavigationDestination(
-                      icon: Icon(Icons.dashboard_outlined),
-                      selectedIcon: Icon(Icons.dashboard),
-                      label: 'Inicio',
-                    ),
-                    NavigationDestination(
-                      icon: Icon(Icons.wifi_tethering),
-                      selectedIcon: Icon(Icons.wifi_tethering),
-                      label: 'Servicios',
-                    ),
-                    NavigationDestination(
-                      icon: Icon(Icons.confirmation_number_outlined),
-                      selectedIcon: Icon(Icons.confirmation_number),
-                      label: 'Tickets',
-                    ),
-                    NavigationDestination(
-                      icon: Icon(Icons.receipt_long_outlined),
-                      selectedIcon: Icon(Icons.receipt_long),
-                      label: 'Deudas',
-                    ),
-                    NavigationDestination(
-                      icon: Icon(Icons.person_outline),
-                      selectedIcon: Icon(Icons.person),
-                      label: 'Perfil',
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      );
-    },
-  ),
-);
+            body: _getPage(tabIndex, drawer),
+          );
+        },
+      ),
+    );
   }
 }
+

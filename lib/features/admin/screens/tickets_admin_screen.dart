@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:aeronet_app_flutter/core/utils/app_state_provider.dart';
-import 'package:aeronet_app_flutter/features/admin/providers/admin_provider.dart';
+import 'package:aeronet_app_flutter/features/admin/providers/tickets_admin_provider.dart';
 import 'package:aeronet_app_flutter/shared/widgets/app_page.dart';
 import 'package:aeronet_app_flutter/shared/widgets/loading_widget.dart';
 import 'package:aeronet_app_flutter/shared/widgets/error_state.dart';
@@ -12,7 +12,8 @@ import 'package:aeronet_app_flutter/shared/extensions/string_extensions.dart';
 import 'package:aeronet_app_flutter/core/utils/helpers.dart';
  
 class TicketsAdminScreen extends StatefulWidget {
-  const TicketsAdminScreen({super.key});
+  final Widget? drawer;
+  const TicketsAdminScreen({super.key, this.drawer});
  
   @override
   State<TicketsAdminScreen> createState() => _TicketsAdminScreenState();
@@ -20,6 +21,7 @@ class TicketsAdminScreen extends StatefulWidget {
  
 class _TicketsAdminScreenState extends State<TicketsAdminScreen> {
   Timer? _pollingTimer;
+  late final TicketsAdminProvider _provider;
   
   // ✅ Constante extraída a nivel de clase para evitar redundancia
   static const List<String> validStatuses = ['open', 'assigned', 'in_progress', 'resolved', 'closed'];
@@ -27,12 +29,13 @@ class _TicketsAdminScreenState extends State<TicketsAdminScreen> {
   @override
   void initState() {
     super.initState();
+    _provider = TicketsAdminProvider();
+    _provider.loadTickets();
+
     // Setup polling every 30 seconds
     _pollingTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
       if (mounted) {
-        // ✅ CAMBIO: Usar .read() en lugar de .of() para no suscribirse a cambios en el timer
-        final provider = AppStateProvider.read<AdminProvider>(context);
-        provider.loadTickets();
+        _provider.loadTickets();
       }
     });
   }
@@ -40,6 +43,7 @@ class _TicketsAdminScreenState extends State<TicketsAdminScreen> {
   @override
   void dispose() {
     _pollingTimer?.cancel();
+    _provider.dispose();
     super.dispose();
   }
  
@@ -57,7 +61,7 @@ class _TicketsAdminScreenState extends State<TicketsAdminScreen> {
     }
   }
  
-  void _showStatusDialog(BuildContext context, AdminProvider provider, TicketModel ticket) {
+  void _showStatusDialog(BuildContext context, TicketsAdminProvider provider, TicketModel ticket) {
     _pollingTimer?.cancel();
 
     String selectedStatus = validStatuses.contains(ticket.status) ? ticket.status : 'open';
@@ -134,7 +138,7 @@ class _TicketsAdminScreenState extends State<TicketsAdminScreen> {
         _pollingTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
           if (mounted) {
             // ✅ CAMBIO: Usar .read() en lugar de .of() para no suscribirse a cambios en el timer
-            final provider = AppStateProvider.read<AdminProvider>(context);
+            final provider = AppStateProvider.read<TicketsAdminProvider>(context);
             provider.loadTickets();
           }
         });
@@ -144,19 +148,22 @@ class _TicketsAdminScreenState extends State<TicketsAdminScreen> {
  
   @override
   Widget build(BuildContext context) {
-    final adminProvider = AppStateProvider.read<AdminProvider>(context);
+    final adminProvider = _provider;
  
-    return AppPage(
-      title: 'Tickets Soporte',
-      subtitle: 'Monitoreo de Averías (Polling 30s)',
-      actions: [
-        IconButton(
-          tooltip: 'Forzar Recarga',
-          icon: const Icon(Icons.refresh, color: Color(0xFF2DD4BF)),
-          onPressed: () => adminProvider.loadTickets(),
-        ),
-      ],
-      child: RefreshIndicator(
+    return AppStateProvider<TicketsAdminProvider>(
+      notifier: _provider,
+      child: AppPage(
+        drawer: widget.drawer,
+        title: 'Tickets Soporte',
+        subtitle: 'Monitoreo de Averías (Polling 30s)',
+        actions: [
+          IconButton(
+            tooltip: 'Forzar Recarga',
+            icon: const Icon(Icons.refresh, color: Color(0xFF2DD4BF)),
+            onPressed: () => adminProvider.loadTickets(),
+          ),
+        ],
+        child: RefreshIndicator(
         onRefresh: () => adminProvider.loadTickets(),
         child: ListenableBuilder(
           listenable: adminProvider,
@@ -296,6 +303,6 @@ class _TicketsAdminScreenState extends State<TicketsAdminScreen> {
           },
         ),
       ),
-    );
+    ));
   }
 }

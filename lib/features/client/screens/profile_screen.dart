@@ -16,7 +16,8 @@ import 'package:aeronet_app_flutter/data/services/storage_service.dart';
 import 'package:aeronet_app_flutter/core/constants/app_constants.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+  final Widget? drawer;
+  const ProfileScreen({super.key, this.drawer});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -120,6 +121,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final user = authProvider.currentUser;
 
     return AppPage(
+      drawer: widget.drawer,
       title: 'Mi Perfil',
       subtitle: 'Configuraciones de Usuario',
       child: _loading && _profile == null

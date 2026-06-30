@@ -10,7 +10,8 @@ import 'package:aeronet_app_flutter/core/utils/helpers.dart';
 import 'package:aeronet_app_flutter/data/services/http_service.dart';
 
 class InvoicesClientScreen extends StatefulWidget {
-  const InvoicesClientScreen({super.key});
+  final Widget? drawer;
+  const InvoicesClientScreen({super.key, this.drawer});
 
   @override
   State<InvoicesClientScreen> createState() => _InvoicesClientScreenState();
@@ -62,6 +63,7 @@ class _InvoicesClientScreenState extends State<InvoicesClientScreen> {
     final clientProvider = AppStateProvider.of<ClientProvider>(context);
 
     return AppPage(
+      drawer: widget.drawer,
       title: 'Facturación',
       subtitle: 'Mis Recibos y Pagos',
       child: RefreshIndicator(

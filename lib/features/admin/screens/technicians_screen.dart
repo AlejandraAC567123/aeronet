@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:aeronet_app_flutter/core/utils/app_state_provider.dart';
-import 'package:aeronet_app_flutter/features/admin/providers/admin_provider.dart';
+import 'package:aeronet_app_flutter/features/admin/providers/technicians_admin_provider.dart';
 import 'package:aeronet_app_flutter/shared/widgets/app_page.dart';
 import 'package:aeronet_app_flutter/shared/widgets/loading_widget.dart';
 import 'package:aeronet_app_flutter/shared/widgets/error_state.dart';
@@ -10,13 +10,20 @@ import 'package:aeronet_app_flutter/data/models/technician_model.dart';
 import 'package:aeronet_app_flutter/core/utils/helpers.dart';
 import 'package:aeronet_app_flutter/shared/extensions/string_extensions.dart';
  
-class TechniciansScreen extends StatelessWidget {
-  const TechniciansScreen({super.key});
+class TechniciansScreen extends StatefulWidget {
+  final Widget? drawer;
+  const TechniciansScreen({super.key, this.drawer});
+
+  @override
+  State<TechniciansScreen> createState() => _TechniciansScreenState();
+}
+
+class _TechniciansScreenState extends State<TechniciansScreen> {
  
   // ✅ Constante de especialidades
   static const List<String> validSpecialties = ['FIBRA', 'COBRE', 'WIRELESS', 'MIXTO'];
  
-  void _showFormDialog(BuildContext context, AdminProvider provider, [TechnicianModel? technician]) {
+  void _showFormDialog(BuildContext context, TechniciansAdminProvider provider, [TechnicianModel? technician]) {
     final isEdit = technician != null;
     final nameController = TextEditingController(text: technician?.fullName);
     final emailController = TextEditingController(text: technician?.email);
@@ -152,7 +159,7 @@ class TechniciansScreen extends StatelessWidget {
     );
   }
  
-  void _confirmDelete(BuildContext context, AdminProvider provider, String id) {
+  void _confirmDelete(BuildContext context, TechniciansAdminProvider provider, String id) {
     showDialog(
       context: context,
       builder: (ctx) {
@@ -183,11 +190,29 @@ class TechniciansScreen extends StatelessWidget {
     );
   }
  
+  late final TechniciansAdminProvider _provider;
+
+  @override
+  void initState() {
+    super.initState();
+    _provider = TechniciansAdminProvider();
+    _provider.loadTechnicians();
+  }
+
+  @override
+  void dispose() {
+    _provider.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final adminProvider = AppStateProvider.of<AdminProvider>(context);
+    final adminProvider = _provider;
  
-    return AppPage(
+    return AppStateProvider<TechniciansAdminProvider>(
+      notifier: _provider,
+      child: AppPage(
+        drawer: widget.drawer,
       title: 'Técnicos',
       subtitle: 'Personal de Campo ISP',
       actions: [
@@ -318,6 +343,6 @@ class TechniciansScreen extends StatelessWidget {
           },
         ),
       ),
-    );
+    ));
   }
 }

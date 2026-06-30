@@ -10,7 +10,8 @@ import 'package:aeronet_app_flutter/data/repositories/customer_repository.dart';
 import 'package:aeronet_app_flutter/shared/widgets/signal_indicator.dart';
 
 class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({super.key});
+  final Widget? drawer;
+  const DashboardScreen({super.key, this.drawer});
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -63,6 +64,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
 
     return AppPage(
+      drawer: widget.drawer,
       title: '', // Se maneja en el header personalizado
       subtitle: '',
       child: RefreshIndicator(

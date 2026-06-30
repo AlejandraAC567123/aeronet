@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:aeronet_app_flutter/core/utils/app_state_provider.dart';
-import 'package:aeronet_app_flutter/features/admin/providers/admin_provider.dart';
+import 'package:aeronet_app_flutter/features/admin/providers/services_admin_provider.dart';
 import 'package:aeronet_app_flutter/shared/widgets/app_page.dart';
 import 'package:aeronet_app_flutter/shared/widgets/loading_widget.dart';
 import 'package:aeronet_app_flutter/shared/widgets/error_state.dart';
@@ -8,14 +8,39 @@ import 'package:aeronet_app_flutter/shared/widgets/empty_state.dart';
 import 'package:aeronet_app_flutter/shared/widgets/glass_container.dart';
 import 'package:aeronet_app_flutter/core/utils/helpers.dart';
 
-class ServicesAdminScreen extends StatelessWidget {
-  const ServicesAdminScreen({super.key});
+class ServicesAdminScreen extends StatefulWidget {
+  final Widget? drawer;
+  const ServicesAdminScreen({super.key, this.drawer});
+
+  @override
+  State<ServicesAdminScreen> createState() => _ServicesAdminScreenState();
+}
+
+class _ServicesAdminScreenState extends State<ServicesAdminScreen> {
+
+  late final ServicesAdminProvider _provider;
+
+  @override
+  void initState() {
+    super.initState();
+    _provider = ServicesAdminProvider();
+    _provider.loadServices();
+  }
+
+  @override
+  void dispose() {
+    _provider.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final adminProvider = AppStateProvider.of<AdminProvider>(context);
+    final adminProvider = _provider;
 
-    return AppPage(
+    return AppStateProvider<ServicesAdminProvider>(
+      notifier: _provider,
+      child: AppPage(
+        drawer: widget.drawer,
       title: 'Servicios y Conexiones',
       subtitle: 'Administración de servicios de clientes',
       actions: [
@@ -150,6 +175,6 @@ class ServicesAdminScreen extends StatelessWidget {
           },
         ),
       ),
-    );
+    ));
   }
 }

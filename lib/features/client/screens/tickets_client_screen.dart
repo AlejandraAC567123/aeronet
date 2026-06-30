@@ -13,13 +13,15 @@ import 'package:aeronet_app_flutter/core/utils/helpers.dart';
 import 'package:aeronet_app_flutter/shared/extensions/string_extensions.dart';
 
 class TicketsClientScreen extends StatelessWidget {
-  const TicketsClientScreen({super.key});
+  final Widget? drawer;
+  const TicketsClientScreen({super.key, this.drawer});
 
   @override
   Widget build(BuildContext context) {
     final clientProvider = AppStateProvider.of<ClientProvider>(context);
 
     return AppPage(
+      drawer: drawer,
       title: 'Soporte Técnico',
       subtitle: 'Mis Tickets y Consultas',
       actions: [
