@@ -30,7 +30,8 @@ class _TicketsAdminScreenState extends State<TicketsAdminScreen> {
     // Setup polling every 30 seconds
     _pollingTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
       if (mounted) {
-        final provider = AppStateProvider.of<AdminProvider>(context);
+        // ✅ CAMBIO: Usar .read() en lugar de .of() para no suscribirse a cambios en el timer
+        final provider = AppStateProvider.read<AdminProvider>(context);
         provider.loadTickets();
       }
     });
@@ -132,7 +133,8 @@ class _TicketsAdminScreenState extends State<TicketsAdminScreen> {
       if (mounted) {
         _pollingTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
           if (mounted) {
-            final provider = AppStateProvider.of<AdminProvider>(context);
+            // ✅ CAMBIO: Usar .read() en lugar de .of() para no suscribirse a cambios en el timer
+            final provider = AppStateProvider.read<AdminProvider>(context);
             provider.loadTickets();
           }
         });
@@ -274,7 +276,8 @@ class _TicketsAdminScreenState extends State<TicketsAdminScreen> {
                           ticket.description,
                           style: const TextStyle(color: Colors.white70, fontSize: 13, height: 1.4),
                         ),
-                        if (ticket.createdAt.isNotEmpty) ...[
+                        if (ticket.createdAt.isNotEmpty) ...
+[
                           const SizedBox(height: 8),
                           Align(
                             alignment: Alignment.bottomRight,

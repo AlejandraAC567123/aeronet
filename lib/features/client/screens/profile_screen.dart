@@ -130,7 +130,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildContent(BuildContext context, AuthProvider authProvider, dynamic user) {
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 100), // Aire inferior para barra inferior extendida
       children: [
         // Avatar Header
         Center(
@@ -138,12 +138,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
             children: [
               CircleAvatar(
                 radius: 60,
-                backgroundColor: const Color(0xFF1E293B),
+                backgroundColor: const Color(0xFF222840), // Superficie secundaria
                 backgroundImage: _profile != null && _profile!.avatarUrl.isNotEmpty
                     ? NetworkImage(_profile!.avatarUrl)
                     : null,
                 child: _profile == null || _profile!.avatarUrl.isEmpty
-                    ? const Icon(Icons.person, size: 60, color: Colors.white54)
+                    ? const Icon(Icons.person, size: 60, color: Color(0xFF8C92AE))
                     : null,
               ),
               Positioned(
@@ -151,11 +151,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 right: 0,
                 child: Container(
                   decoration: const BoxDecoration(
-                    color: Color(0xFF2DD4BF),
+                    color: Color(0xFF4FE6C4), // Menta
                     shape: BoxShape.circle,
                   ),
                   child: IconButton(
-                    icon: const Icon(Icons.camera_alt_outlined, color: Colors.black, size: 20),
+                    icon: const Icon(Icons.camera_alt_outlined, color: Color(0xFF10131F), size: 20),
                     onPressed: () => _showAvatarPickerOptions(context),
                   ),
                 ),
@@ -172,32 +172,58 @@ class _ProfileScreenState extends State<ProfileScreen> {
             children: [
               Text(
                 _profile?.fullName ?? 'Usuario AeroNet',
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                style: const TextStyle(
+                  fontFamily: 'Plus Jakarta Sans',
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFFF2F4FA),
+                ),
               ),
               const SizedBox(height: 6),
               Text(
                 _profile?.email ?? user?.email ?? '',
-                style: const TextStyle(fontSize: 14, color: Colors.white70),
+                style: const TextStyle(
+                  fontFamily: 'Inter',
+                  fontSize: 14,
+                  color: Color(0xFF8C92AE),
+                ),
               ),
               if (_profile != null && _profile!.phone.isNotEmpty) ...[
-                const SizedBox(height: 12),
+                const SizedBox(height: 16),
                 Row(
                   children: [
-                    const Icon(Icons.phone_outlined, size: 16, color: Color(0xFF2DD4BF)),
-                    const SizedBox(width: 8),
-                    Text(_profile!.phone, style: const TextStyle(color: Colors.white70)),
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF4FE6C4).withOpacity(0.12),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(Icons.phone_outlined, size: 16, color: Color(0xFF4FE6C4)),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      _profile!.phone,
+                      style: const TextStyle(fontFamily: 'Inter', color: Color(0xFFF2F4FA)),
+                    ),
                   ],
                 ),
               ],
               if (_profile != null && _profile!.documentNumber.isNotEmpty) ...[
-                const SizedBox(height: 8),
+                const SizedBox(height: 12),
                 Row(
                   children: [
-                    const Icon(Icons.badge_outlined, size: 16, color: Color(0xFF2DD4BF)),
-                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF4FE6C4).withOpacity(0.12),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(Icons.badge_outlined, size: 16, color: Color(0xFF4FE6C4)),
+                    ),
+                    const SizedBox(width: 12),
                     Text(
                       '${_profile!.documentType}: ${_profile!.documentNumber}',
-                      style: const TextStyle(color: Colors.white70),
+                      style: const TextStyle(fontFamily: 'Inter', color: Color(0xFFF2F4FA)),
                     ),
                   ],
                 ),
@@ -214,19 +240,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
             children: [
               const Text(
                 'Parámetros de Desarrollo',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white),
+                style: TextStyle(
+                  fontFamily: 'Plus Jakarta Sans',
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFFF2F4FA),
+                ),
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _apiUrlController,
                 decoration: InputDecoration(
                   labelText: 'Backend API Base URL',
+                  labelStyle: const TextStyle(fontFamily: 'Inter', color: Color(0xFF8C92AE)),
                   suffixIcon: IconButton(
-                    icon: const Icon(Icons.save_outlined, color: Color(0xFF2DD4BF)),
+                    icon: const Icon(Icons.save_outlined, color: Color(0xFF4FE6C4)),
                     onPressed: _saveApiUrl,
                   ),
                 ),
-                style: const TextStyle(color: Colors.white, fontSize: 13),
+                style: const TextStyle(fontFamily: 'Inter', color: Color(0xFFF2F4FA), fontSize: 13),
               ),
             ],
           ),
@@ -239,11 +271,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
             children: [
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.notifications_active_outlined, color: Color(0xFF2DD4BF)),
-                title: const Text('Notificaciones Locales', style: TextStyle(color: Colors.white)),
-                subtitle: const Text('Gatillar alerta de prueba local', style: TextStyle(color: Colors.white60, fontSize: 12)),
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF4FE6C4).withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.notifications_active_outlined, color: Color(0xFF4FE6C4)),
+                ),
+                title: const Text(
+                  'Notificaciones Locales',
+                  style: TextStyle(fontFamily: 'Inter', color: Color(0xFFF2F4FA), fontWeight: FontWeight.bold),
+                ),
+                subtitle: const Text(
+                  'Gatillar alerta de prueba local',
+                  style: TextStyle(fontFamily: 'Inter', color: Color(0xFF8C92AE), fontSize: 12),
+                ),
                 trailing: IconButton(
-                  icon: const Icon(Icons.play_circle_outline, color: Color(0xFF2DD4BF)),
+                  icon: const Icon(Icons.play_circle_outline, color: Color(0xFF4FE6C4), size: 28),
                   onPressed: () async {
                     await LocalNotifier.instance.show(
                       'Notificación de Prueba',
@@ -252,12 +297,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   },
                 ),
               ),
-              const Divider(color: Colors.white10),
+              const Divider(color: Color(0xFF2B3150), height: 1.0),
               const ListTile(
                 contentPadding: EdgeInsets.zero,
-                leading: Icon(Icons.hub_outlined, color: Colors.white30),
-                title: Text('Servidor de Sockets', style: TextStyle(color: Colors.white30)),
-                subtitle: Text('El backend de Render no expone gateway websocket activo.', style: TextStyle(color: Colors.white30, fontSize: 12)),
+                leading: Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Icon(Icons.hub_outlined, color: Color(0xFF5C6280)),
+                ),
+                title: Text(
+                  'Servidor de Sockets',
+                  style: TextStyle(fontFamily: 'Inter', color: Color(0xFF5C6280), fontWeight: FontWeight.bold),
+                ),
+                subtitle: Text(
+                  'El backend de Render no expone gateway websocket activo.',
+                  style: TextStyle(fontFamily: 'Inter', color: Color(0xFF5C6280), fontSize: 12),
+                ),
               ),
             ],
           ),
@@ -267,7 +321,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const SizedBox(height: 16),
           Text(
             'Error al refrescar datos del backend: $_error',
-            style: const TextStyle(color: Colors.redAccent, fontSize: 12),
+            style: const TextStyle(color: Color(0xFFFF6B6B), fontSize: 12, fontFamily: 'Inter'),
             textAlign: TextAlign.center,
           ),
         ],
@@ -276,10 +330,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
         // Logout
         FilledButton.icon(
-          style: FilledButton.styleFrom(backgroundColor: Colors.redAccent.withOpacity(0.9)),
+          style: FilledButton.styleFrom(
+            backgroundColor: const Color(0xFFFF6B6B), // Coral
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          ),
           onPressed: () => _logout(authProvider),
           icon: const Icon(Icons.logout, color: Colors.white),
-          label: const Text('Cerrar Sesión', style: TextStyle(color: Colors.white)),
+          label: const Text(
+            'Cerrar Sesión',
+            style: TextStyle(fontFamily: 'Inter', color: Colors.white, fontWeight: FontWeight.bold),
+          ),
         ),
       ],
     );
@@ -288,25 +349,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void _showAvatarPickerOptions(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF1E293B),
+      backgroundColor: const Color(0xFF1A1E30), // Surface background
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
       ),
       builder: (_) {
         return SafeArea(
           child: Wrap(
             children: [
               ListTile(
-                leading: const Icon(Icons.photo_library_outlined, color: Color(0xFF2DD4BF)),
-                title: const Text('Galería', style: TextStyle(color: Colors.white)),
+                leading: const Icon(Icons.photo_library_outlined, color: Color(0xFF4FE6C4)),
+                title: const Text('Galería', style: TextStyle(fontFamily: 'Inter', color: Color(0xFFF2F4FA))),
                 onTap: () {
                   Navigator.of(context).pop();
                   _pickAndUploadAvatar(ImageSource.gallery);
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.photo_camera_outlined, color: Color(0xFF2DD4BF)),
-                title: const Text('Cámara', style: TextStyle(color: Colors.white)),
+                leading: const Icon(Icons.photo_camera_outlined, color: Color(0xFF4FE6C4)),
+                title: const Text('Cámara', style: TextStyle(fontFamily: 'Inter', color: Color(0xFFF2F4FA))),
                 onTap: () {
                   Navigator.of(context).pop();
                   _pickAndUploadAvatar(ImageSource.camera);

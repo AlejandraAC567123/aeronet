@@ -81,7 +81,7 @@ class TicketsClientScreen extends StatelessWidget {
 
     return ListView.builder(
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 90),
       itemCount: provider.myTickets.length,
       itemBuilder: (context, index) {
         return TicketCard(ticket: provider.myTickets[index]);
@@ -209,24 +209,21 @@ class _TicketFormPageState extends State<TicketFormPage> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('Nuevo Ticket'),
+        title: const Text(
+          'Nuevo Ticket',
+          style: TextStyle(
+            fontFamily: 'Plus Jakarta Sans',
+            fontWeight: FontWeight.w800,
+            color: Color(0xFFF2F4FA),
+          ),
+        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
       body: Container(
         height: double.infinity,
         width: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF0F2027),
-              Color(0xFF203A43),
-              Color(0xFF0B1120),
-            ],
-          ),
-        ),
+        color: const Color(0xFF10131F),
         child: SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(20),
@@ -263,7 +260,7 @@ class _TicketFormPageState extends State<TicketFormPage> {
                   // Category Dropdown
                   DropdownButtonFormField<String>(
                     value: _selectedCategory,
-                    dropdownColor: const Color(0xFF1E293B),
+                    dropdownColor: const Color(0xFF1A1E30),
                     decoration: const InputDecoration(
                       labelText: 'Categoría',
                       prefixIcon: Icon(Icons.category_outlined),
@@ -378,24 +375,21 @@ class DraftsListPage extends StatelessWidget {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('Borradores Locales'),
+        title: const Text(
+          'Borradores Locales',
+          style: TextStyle(
+            fontFamily: 'Plus Jakarta Sans',
+            fontWeight: FontWeight.w800,
+            color: Color(0xFFF2F4FA),
+          ),
+        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
       body: Container(
         height: double.infinity,
         width: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF0F2027),
-              Color(0xFF203A43),
-              Color(0xFF0B1120),
-            ],
-          ),
-        ),
+        color: const Color(0xFF10131F),
         child: SafeArea(
           child: ListenableBuilder(
             listenable: clientProvider,

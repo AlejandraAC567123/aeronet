@@ -65,7 +65,7 @@ class ServicesScreen extends StatelessWidget {
 
     return ListView.builder(
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 90),
       itemCount: provider.myServices.length,
       itemBuilder: (context, index) {
         return ServiceCard(service: provider.myServices[index]);
@@ -206,24 +206,21 @@ class _ServiceRequestPageState extends State<ServiceRequestPage> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('Nueva Instalación'),
+        title: const Text(
+          'Nueva Instalación',
+          style: TextStyle(
+            fontFamily: 'Plus Jakarta Sans',
+            fontWeight: FontWeight.w800,
+            color: Color(0xFFF2F4FA),
+          ),
+        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
       body: Container(
         height: double.infinity,
         width: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF0F2027),
-              Color(0xFF203A43),
-              Color(0xFF0B1120),
-            ],
-          ),
-        ),
+        color: const Color(0xFF10131F),
         child: SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(20.0),
@@ -258,7 +255,7 @@ class _ServiceRequestPageState extends State<ServiceRequestPage> {
                       labelText: 'Plan de Internet',
                       prefixIcon: Icon(Icons.speed_outlined),
                     ),
-                    dropdownColor: const Color(0xFF1E293B),
+                    dropdownColor: const Color(0xFF1A1E30),
                     style: const TextStyle(color: Colors.white, fontSize: 15),
                     items: clientProvider.allPlans.map((plan) {
                       return DropdownMenuItem(
@@ -300,7 +297,7 @@ class _ServiceRequestPageState extends State<ServiceRequestPage> {
                           decoration: const InputDecoration(
                             labelText: 'Tipo',
                           ),
-                          dropdownColor: const Color(0xFF1E293B),
+                          dropdownColor: const Color(0xFF1A1E30),
                           style: const TextStyle(color: Colors.white, fontSize: 15),
                           items: const [
                             DropdownMenuItem(value: 'DNI', child: Text('DNI')),

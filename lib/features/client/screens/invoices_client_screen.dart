@@ -7,9 +7,55 @@ import 'package:aeronet_app_flutter/shared/widgets/error_state.dart';
 import 'package:aeronet_app_flutter/shared/widgets/empty_state.dart';
 import 'package:aeronet_app_flutter/features/client/widgets/invoice_card.dart';
 import 'package:aeronet_app_flutter/core/utils/helpers.dart';
+import 'package:aeronet_app_flutter/data/services/http_service.dart';
 
-class InvoicesClientScreen extends StatelessWidget {
+class InvoicesClientScreen extends StatefulWidget {
   const InvoicesClientScreen({super.key});
+
+  @override
+  State<InvoicesClientScreen> createState() => _InvoicesClientScreenState();
+}
+
+class _InvoicesClientScreenState extends State<InvoicesClientScreen> {
+  final HttpService _httpService = HttpService.instance;
+
+  Future<void> _generateCheckout(String invoiceId) async {
+    try {
+      // Loading dialog
+      if (!mounted) return;
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (ctx) => const AlertDialog(
+          content: Row(
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(width: 16),
+              Text('Procesando pago simulado...'),
+            ],
+          ),
+        ),
+      );
+
+      // Simular pago
+      await _httpService.generateCheckout(invoiceId);
+
+      if (!mounted) return;
+      Navigator.of(context).pop(); // Cierra loading
+
+      showMessage(context, '¡Pago simulado procesado exitosamente!');
+
+      // Recargar deudas inmediatamente
+      if (mounted) {
+        final clientProvider = AppStateProvider.read<ClientProvider>(context);
+        await clientProvider.loadMyDebts();
+      }
+    } catch (e) {
+      if (!mounted) return;
+      Navigator.of(context).pop(); // Cierra loading
+      showMessage(context, 'Error: ${e.toString()}');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,6 +66,8 @@ class InvoicesClientScreen extends StatelessWidget {
       subtitle: 'Mis Recibos y Pagos',
       child: RefreshIndicator(
         onRefresh: () => clientProvider.loadMyDebts(),
+        color: const Color(0xFF4FE6C4),
+        backgroundColor: const Color(0xFF1A1E30),
         child: ListenableBuilder(
           listenable: clientProvider,
           builder: (context, _) {
@@ -51,25 +99,14 @@ class InvoicesClientScreen extends StatelessWidget {
 
     return ListView.builder(
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 90), // Aire inferior para la barra inferior extendida
       itemCount: provider.myDebts.length,
       itemBuilder: (context, index) {
         final invoice = provider.myDebts[index];
         return InvoiceCard(
           invoice: invoice,
           isLoading: provider.isLoading,
-          onSimulatePayment: () async {
-            try {
-              await provider.simulateInvoicePayment(invoice.id);
-              if (context.mounted) {
-                showMessage(context, 'Pago simulado con éxito.');
-              }
-            } catch (e) {
-              if (context.mounted) {
-                showMessage(context, e.toString());
-              }
-            }
-          },
+          onPayment: () => _generateCheckout(invoice.id),
         );
       },
     );

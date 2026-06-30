@@ -2,91 +2,132 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  static const Color backgroundColor = Color(0xFF0B1120);
-  static const Color cardColor = Color(0xFF1E293B);
-  static const Color accentColor = Color(0xFF2DD4BF);
-  static const Color primaryColor = Color(0xFF0F766E); // Teal primary
+  static const Color backgroundColor = Color(0xFF10131F);
+  static const Color cardColor = Color(0xFF1A1E30);
+  static const Color accentColor = Color(0xFF4FE6C4);
+  static const Color primaryColor = Color(0xFF4FE6C4);
+
+  static const Color surfaceSecondary = Color(0xFF222840);
+  static const Color borderDividerColor = Color(0xFF2B3150);
+  static const Color textPrimaryColor = Color(0xFFF2F4FA);
+  static const Color textSecondaryColor = Color(0xFF8C92AE);
+  static const Color textTertiaryColor = Color(0xFF5C6280);
+  static const Color alertColor = Color(0xFFFFB454);
+  static const Color errorColor = Color(0xFFFF6B6B);
 
   static ThemeData get darkTheme {
+    final baseTextTheme = GoogleFonts.interTextTheme(ThemeData.dark().textTheme);
+    final titleTextTheme = GoogleFonts.plusJakartaSansTextTheme(ThemeData.dark().textTheme);
+
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
       scaffoldBackgroundColor: backgroundColor,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: primaryColor,
-        brightness: Brightness.dark,
+      primaryColor: primaryColor,
+      colorScheme: const ColorScheme.dark(
         primary: primaryColor,
         secondary: accentColor,
         surface: cardColor,
         background: backgroundColor,
+        error: errorColor,
       ),
-      textTheme: GoogleFonts.outfitTextTheme(ThemeData.dark().textTheme),
+      textTheme: baseTextTheme.copyWith(
+        displayLarge: titleTextTheme.displayLarge?.copyWith(color: textPrimaryColor, fontWeight: FontWeight.w800),
+        displayMedium: titleTextTheme.displayMedium?.copyWith(color: textPrimaryColor, fontWeight: FontWeight.w800),
+        displaySmall: titleTextTheme.displaySmall?.copyWith(color: textPrimaryColor, fontWeight: FontWeight.w800),
+        headlineLarge: titleTextTheme.headlineLarge?.copyWith(color: textPrimaryColor, fontWeight: FontWeight.w700),
+        headlineMedium: titleTextTheme.headlineMedium?.copyWith(color: textPrimaryColor, fontWeight: FontWeight.w700),
+        headlineSmall: titleTextTheme.headlineSmall?.copyWith(color: textPrimaryColor, fontWeight: FontWeight.w700),
+        titleLarge: titleTextTheme.titleLarge?.copyWith(color: textPrimaryColor, fontWeight: FontWeight.w700),
+        titleMedium: titleTextTheme.titleMedium?.copyWith(color: textPrimaryColor, fontWeight: FontWeight.w600),
+        titleSmall: titleTextTheme.titleSmall?.copyWith(color: textPrimaryColor, fontWeight: FontWeight.w600),
+        bodyLarge: baseTextTheme.bodyLarge?.copyWith(color: textPrimaryColor, fontWeight: FontWeight.w500),
+        bodyMedium: baseTextTheme.bodyMedium?.copyWith(color: textSecondaryColor, fontWeight: FontWeight.w400),
+        bodySmall: baseTextTheme.bodySmall?.copyWith(color: textTertiaryColor, fontWeight: FontWeight.w400),
+        labelLarge: baseTextTheme.labelLarge?.copyWith(color: textSecondaryColor, fontWeight: FontWeight.w600),
+        labelMedium: baseTextTheme.labelMedium?.copyWith(color: textSecondaryColor, fontWeight: FontWeight.w500),
+        labelSmall: baseTextTheme.labelSmall?.copyWith(color: textTertiaryColor, fontWeight: FontWeight.w400),
+      ),
       cardTheme: const CardThemeData(
         elevation: 0,
-        color: Colors.transparent,
+        color: cardColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(22)),
+          side: BorderSide(color: borderDividerColor, width: 1.0),
+        ),
       ),
       appBarTheme: const AppBarTheme(
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: false,
-        iconTheme: IconThemeData(color: Colors.white),
+        iconTheme: IconThemeData(color: textPrimaryColor),
         titleTextStyle: TextStyle(
-          color: Colors.white,
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
+          color: textPrimaryColor,
+          fontSize: 22,
+          fontWeight: FontWeight.w800,
         ),
       ),
-      inputDecorationTheme: InputDecorationTheme(
+      inputDecorationTheme: const InputDecorationTheme(
         filled: true,
-        fillColor: Colors.white.withOpacity(0.05),
-        border: const OutlineInputBorder(
+        fillColor: cardColor,
+        border: OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(16)),
-          borderSide: BorderSide.none,
+          borderSide: BorderSide(color: borderDividerColor, width: 1.0),
         ),
-        enabledBorder: const OutlineInputBorder(
+        enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(16)),
-          borderSide: BorderSide.none,
+          borderSide: BorderSide(color: borderDividerColor, width: 1.0),
         ),
-        focusedBorder: const OutlineInputBorder(
+        focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(16)),
-          borderSide: BorderSide(color: accentColor, width: 1.5),
+          borderSide: BorderSide(color: primaryColor, width: 1.5),
         ),
-        labelStyle: const TextStyle(color: Colors.white70),
-        prefixIconColor: accentColor,
-        suffixIconColor: accentColor,
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(16)),
+          borderSide: BorderSide(color: errorColor, width: 1.0),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(16)),
+          borderSide: BorderSide(color: errorColor, width: 1.5),
+        ),
+        labelStyle: TextStyle(color: textSecondaryColor),
+        hintStyle: TextStyle(color: textTertiaryColor),
+        prefixIconColor: textSecondaryColor,
+        suffixIconColor: textSecondaryColor,
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           backgroundColor: primaryColor,
-          foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          foregroundColor: backgroundColor,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-          textStyle: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 16),
+          textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: Colors.white,
-          side: BorderSide(color: Colors.white.withOpacity(0.2)),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          foregroundColor: textPrimaryColor,
+          side: const BorderSide(color: borderDividerColor, width: 1.0),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
-          textStyle: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 14),
+          textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
         ),
       ),
       navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: const Color(0xFF0F2027),
-        indicatorColor: accentColor.withOpacity(0.2),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        indicatorColor: primaryColor.withOpacity(0.12),
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return GoogleFonts.outfit(color: accentColor, fontSize: 12, fontWeight: FontWeight.bold);
+            return const TextStyle(color: primaryColor, fontSize: 12, fontWeight: FontWeight.w600);
           }
-          return GoogleFonts.outfit(color: Colors.white70, fontSize: 12);
+          return const TextStyle(color: textTertiaryColor, fontSize: 12, fontWeight: FontWeight.w500);
         }),
         iconTheme: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return const IconThemeData(color: accentColor);
+            return const IconThemeData(color: primaryColor);
           }
-          return const IconThemeData(color: Colors.white70);
+          return const IconThemeData(color: textTertiaryColor);
         }),
       ),
     );

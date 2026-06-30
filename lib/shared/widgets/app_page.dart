@@ -27,18 +27,22 @@ class AppPage extends StatelessWidget {
             Text(
               title,
               style: const TextStyle(
+                fontFamily: 'Plus Jakarta Sans',
                 fontWeight: FontWeight.w800,
-                color: Colors.white,
+                color: Color(0xFFF2F4FA),
+                fontSize: 22,
                 letterSpacing: 0.5,
               ),
             ),
             if (subtitle.isNotEmpty)
               Text(
                 subtitle,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.white70,
-                      fontWeight: FontWeight.w300,
-                    ),
+                style: const TextStyle(
+                  fontFamily: 'Inter',
+                  color: Color(0xFF8C92AE),
+                  fontWeight: FontWeight.w400,
+                  fontSize: 12,
+                ),
                 overflow: TextOverflow.ellipsis,
               ),
           ],
@@ -46,18 +50,9 @@ class AppPage extends StatelessWidget {
         actions: actions,
       ),
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF0F2027),
-              Color(0xFF203A43),
-              Color(0xFF0B1120),
-            ],
-            stops: [0.0, 0.4, 1.0],
-          ),
-        ),
+        width: double.infinity,
+        height: double.infinity,
+        color: const Color(0xFF10131F), // Fondo principal sólido
         child: SafeArea(child: child),
       ),
     );

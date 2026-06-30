@@ -18,11 +18,18 @@ class ClientProvider extends ChangeNotifier {
   
   bool _isLoading = false;
   String? _errorMessage;
+  int _currentTabIndex = 0; // Control de navegación programática
 
   List<InvoiceModel> get myDebts => _myDebts;
   List<ServiceModel> get myServices => _myServices;
   List<TicketModel> get myTickets => _myTickets;
   List<PlanModel> get allPlans => _allPlans;
+  int get currentTabIndex => _currentTabIndex;
+
+  void setTabIndex(int index) {
+    _currentTabIndex = index;
+    notifyListeners();
+  }
   List<TicketDraft> get localDrafts => _localDrafts;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;

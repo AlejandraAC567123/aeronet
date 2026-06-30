@@ -44,10 +44,14 @@ class CustomerCard extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                       fontSize: 15,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   Text(
                     customer.email,
                     style: const TextStyle(color: Colors.white60, fontSize: 13),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   if (customer.phone.isNotEmpty) ...[
                     const SizedBox(height: 4),

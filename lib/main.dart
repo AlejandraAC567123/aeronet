@@ -88,7 +88,8 @@ class _BootstrapScreenState extends State<BootstrapScreen> {
     await Future.delayed(const Duration(milliseconds: 800));
     if (!mounted) return;
 
-    final authProvider = AppStateProvider.of<AuthProvider>(context);
+    // CAMBIO: Usa .read() en lugar de .of() para NO suscribirse a cambios durante bootstrap
+    final authProvider = AppStateProvider.read<AuthProvider>(context);
     authProvider.checkSession();
 
     if (authProvider.isLoggedIn) {

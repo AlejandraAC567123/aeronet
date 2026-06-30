@@ -4,18 +4,18 @@ import 'package:aeronet_app_flutter/data/models/invoice_model.dart';
 import 'package:aeronet_app_flutter/shared/widgets/glass_container.dart';
 import 'package:aeronet_app_flutter/core/utils/helpers.dart';
 import 'package:aeronet_app_flutter/shared/extensions/string_extensions.dart';
-import 'package:aeronet_app_flutter/data/repositories/invoice_repository.dart';
+import 'package:aeronet_app_flutter/data/services/documents_service.dart';
 
 class InvoiceCard extends StatefulWidget {
   const InvoiceCard({
     super.key,
     required this.invoice,
-    required this.onSimulatePayment,
+    required this.onPayment,
     required this.isLoading,
   });
 
   final InvoiceModel invoice;
-  final VoidCallback onSimulatePayment;
+  final VoidCallback onPayment;
   final bool isLoading;
 
   @override
@@ -23,43 +23,82 @@ class InvoiceCard extends StatefulWidget {
 }
 
 class _InvoiceCardState extends State<InvoiceCard> {
-  bool _generatingLink = false;
+  bool _processingPayment = false;
+  bool _loadingDocuments = false;
+  List<Map<String, dynamic>> _documents = [];
 
-  Future<void> _pay(String documentType) async {
-    setState(() => _generatingLink = true);
+  @override
+  void initState() {
+    super.initState();
+    // Cargar comprobantes si la factura está en estado pagado/aprobado/facturado
+    if (_isPaidOrInvoiced) {
+      _loadDocuments();
+    }
+  }
+
+  bool get _isPaidOrInvoiced =>
+      widget.invoice.status.toLowerCase() == 'paid' ||
+      widget.invoice.status.toLowerCase() == 'approved' ||
+      widget.invoice.status.toLowerCase() == 'invoiced';
+
+  Future<void> _loadDocuments() async {
+    if (!mounted) return;
+    setState(() => _loadingDocuments = true);
     try {
-      final response = await InvoiceRepository.instance.generatePaymentLink(
-        widget.invoice.id,
-        documentType,
-      );
-      final url = '${response['init_point'] ?? response['payment_url'] ?? response['url'] ?? ''}';
-      if (url.isNotEmpty) {
-        final uri = Uri.parse(url);
-        if (await canLaunchUrl(uri)) {
-          await launchUrl(uri, mode: LaunchMode.externalApplication);
-        } else {
-          if (mounted) showMessage(context, 'No se pudo abrir el navegador para la URL.');
-        }
-      } else {
-        if (mounted) showMessage(context, 'El servidor no devolvió un enlace de pago válido.');
+      final docs = await DocumentsService.instance
+          .getInvoiceDocuments(widget.invoice.id);
+      if (mounted) {
+        setState(() => _documents = docs);
       }
     } catch (e) {
-      if (mounted) showMessage(context, e.toString());
+      debugPrint('Error cargando comprobantes: $e');
     } finally {
-      if (mounted) setState(() => _generatingLink = false);
+      if (mounted) {
+        setState(() => _loadingDocuments = false);
+      }
+    }
+  }
+
+  Future<void> _downloadPdf(String pdfUrl) async {
+    if (pdfUrl.isEmpty) return;
+    try {
+      final uri = Uri.parse(pdfUrl);
+      final launched = await launchUrl(
+        uri,
+        mode: LaunchMode.externalApplication,
+      );
+      if (!launched) {
+        if (mounted) {
+          showMessage(context, 'No se pudo abrir el comprobante, intenta de nuevo');
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        showMessage(context, 'No se pudo abrir el comprobante, intenta de nuevo');
+      }
+    }
+  }
+
+  Color _getStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'paid':
+      case 'approved':
+      case 'invoiced':
+        return const Color(0xFF2DD4BF); // Teal
+      case 'overdue':
+        return Colors.redAccent; // Rojo
+      default:
+        return Colors.orangeAccent; // Naranja
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final invoice = widget.invoice;
-    final isPaid = invoice.status.toLowerCase() == 'paid' || invoice.status.toLowerCase() == 'approved';
+    final isPending = invoice.status.toLowerCase() == 'pending';
+    final isPaid = _isPaidOrInvoiced;
     final isOverdue = invoice.status.toLowerCase() == 'overdue';
-    
-    Color statusColor = const Color(0xFF2DD4BF); // Teal for paid
-    if (!isPaid) {
-      statusColor = isOverdue ? Colors.redAccent : Colors.orangeAccent;
-    }
+    final statusColor = _getStatusColor(invoice.status);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
@@ -67,15 +106,19 @@ class _InvoiceCardState extends State<InvoiceCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // ENCABEZADO
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'Factura #${shortId(invoice.id)}',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                Expanded(
+                  child: Text(
+                    'Factura #${shortId(invoice.id)}',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 Container(
@@ -96,73 +139,159 @@ class _InvoiceCardState extends State<InvoiceCard> {
               ],
             ),
             const SizedBox(height: 12),
+
+            // MONTO Y VENCIMIENTO
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Monto Total', style: TextStyle(color: Colors.white60, fontSize: 13)),
-                    const SizedBox(height: 4),
-                    Text(
-                      money(invoice.amount),
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
-                if (invoice.dueDate != null && invoice.dueDate!.isNotEmpty)
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Vencimiento', style: TextStyle(color: Colors.white60, fontSize: 13)),
+                      const Text('Monto Total',
+                          style: TextStyle(color: Colors.white60, fontSize: 13)),
                       const SizedBox(height: 4),
                       Text(
-                        invoice.dueDate!.split('T')[0],
-                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                        money(invoice.amount),
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                        ),
                       ),
                     ],
                   ),
+                ),
+                if (invoice.dueDate != null && invoice.dueDate!.isNotEmpty)
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        const Text('Vencimiento',
+                            style: TextStyle(color: Colors.white60, fontSize: 13)),
+                        const SizedBox(height: 4),
+                        Text(
+                          invoice.dueDate!.split('T')[0],
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
               ],
             ),
-            if (!isPaid) ...[
+
+            // BOTONES
+            if (isPending) ...[
               const SizedBox(height: 16),
               const Divider(color: Colors.white10),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: widget.isLoading || _generatingLink ? null : () => _pay('BOLETA'),
-                      icon: const Icon(Icons.receipt_long_outlined, size: 16),
-                      label: const Text('Boleta'),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: widget.isLoading || _generatingLink ? null : () => _pay('FACTURA'),
-                      icon: const Icon(Icons.business_outlined, size: 16),
-                      label: const Text('Factura'),
-                    ),
-                  ),
-                ],
-              ),
               const SizedBox(height: 8),
               SizedBox(
                 width: double.infinity,
                 child: FilledButton.icon(
-                  onPressed: widget.isLoading || _generatingLink ? null : widget.onSimulatePayment,
-                  icon: widget.isLoading
+                  onPressed: (widget.isLoading || _processingPayment) ? null : () async {
+                    setState(() => _processingPayment = true);
+                    try {
+                      widget.onPayment();
+                    } finally {
+                      if (mounted) setState(() => _processingPayment = false);
+                    }
+                  },
+                  icon: _processingPayment || widget.isLoading
                       ? const SizedBox.square(
                           dimension: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
                         )
                       : const Icon(Icons.payment_outlined, size: 16),
-                  label: const Text('Simular Pago'),
+                  label: const Text('Pagar con OpenPay'),
+                ),
+              ),
+            ] else if (isPaid) ...[
+              const SizedBox(height: 12),
+              Center(
+                child: Text(
+                  '✓ Pagado',
+                  style: TextStyle(
+                    color: statusColor,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+              
+              // Lista de comprobantes
+              if (_documents.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                const Divider(color: Colors.white10),
+                const SizedBox(height: 8),
+                ..._documents.where((doc) {
+                  final pdfUrl = DocumentsService.instance.getPdfUrl(doc);
+                  return pdfUrl.isNotEmpty;
+                }).map((doc) {
+                  final tipo = DocumentsService.instance.getDocumentType(doc);
+                  final pdfUrl = DocumentsService.instance.getPdfUrl(doc);
+                  final labelText = tipo.contains('FACTURA') ? 'Descargar factura' : 'Descargar boleta';
+                  
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: Color(0xFF4FE6C4)),
+                          foregroundColor: const Color(0xFF4FE6C4),
+                        ),
+                        onPressed: () => _downloadPdf(pdfUrl),
+                        icon: const Icon(Icons.download, size: 16),
+                        label: Text(labelText),
+                      ),
+                    ),
+                  );
+                }),
+              ] else if (_loadingDocuments) ...[
+                const SizedBox(height: 12),
+                const Center(
+                  child: SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF4FE6C4)),
+                    ),
+                  ),
+                ),
+              ],
+            ] else if (isOverdue) ...[
+              const SizedBox(height: 16),
+              const Divider(color: Colors.white10),
+              const SizedBox(height: 8),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  onPressed: (widget.isLoading || _processingPayment) ? null : () async {
+                    setState(() => _processingPayment = true);
+                    try {
+                      widget.onPayment();
+                    } finally {
+                      if (mounted) setState(() => _processingPayment = false);
+                    }
+                  },
+                  icon: _processingPayment || widget.isLoading
+                      ? const SizedBox.square(
+                          dimension: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Icon(Icons.payment_outlined, size: 16),
+                  label: const Text('Pagar Ahora'),
                 ),
               ),
             ],

@@ -1,5 +1,5 @@
-Set-Content lib\core\utils\app_state_provider.dart -Value @'
 import 'package:flutter/material.dart';
+
 class AppStateProvider<T extends Listenable> extends InheritedNotifier<T> {
   const AppStateProvider({
     super.key,
@@ -21,4 +21,3 @@ class AppStateProvider<T extends Listenable> extends InheritedNotifier<T> {
     return provider!.notifier!;
   }
 }
-'@

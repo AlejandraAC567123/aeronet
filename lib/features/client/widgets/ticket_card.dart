@@ -11,12 +11,12 @@ class TicketCard extends StatelessWidget {
   Color _getPriorityColor(String priority) {
     switch (priority.toLowerCase()) {
       case 'high':
-        return Colors.redAccent;
+        return const Color(0xFFFF6B6B); // Coral (Error/High)
       case 'medium':
-        return Colors.orangeAccent;
+        return const Color(0xFFFFB454); // Ámbar (Alerta/Medium)
       case 'low':
       default:
-        return Colors.greenAccent;
+        return const Color(0xFF4FE6C4); // Menta (Positivo/Low)
     }
   }
 
@@ -24,13 +24,30 @@ class TicketCard extends StatelessWidget {
     switch (status.toLowerCase()) {
       case 'resolved':
       case 'closed':
-        return const Color(0xFF2DD4BF); // Teal
+        return const Color(0xFF4FE6C4); // Menta
       case 'in_progress':
       case 'assigned':
-        return Colors.yellowAccent;
+        return const Color(0xFFFFB454); // Ámbar
       case 'open':
       default:
-        return Colors.cyanAccent;
+        return const Color(0xFF8C92AE); // Gris secundario
+    }
+  }
+
+  IconData _getCategoryIcon(String category) {
+    switch (category.toLowerCase()) {
+      case 'facturacion':
+        return Icons.receipt_long_outlined;
+      case 'nuevo_servicio':
+      case 'traslado':
+        return Icons.add_location_alt_outlined;
+      case 'reclamo':
+      case 'suspension':
+        return Icons.report_problem_outlined;
+      case 'mejora_plan':
+        return Icons.speed_outlined;
+      default:
+        return Icons.support_agent_outlined;
     }
   }
 
@@ -38,6 +55,7 @@ class TicketCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final statusColor = _getStatusColor(ticket.status);
     final priorityColor = _getPriorityColor(ticket.priority);
+    final categoryIcon = _getCategoryIcon(ticket.category);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
@@ -46,89 +64,134 @@ class TicketCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: Text(
-                    ticket.subject.isNotEmpty ? ticket.subject : ticket.category.cleanStatus(),
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
+                // Icono de categoría translúcido
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: statusColor.withOpacity(0.15),
+                    color: priorityColor.withOpacity(0.12),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Text(
-                    ticket.status.cleanStatus(),
-                    style: TextStyle(
-                      color: statusColor,
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  child: Icon(categoryIcon, color: priorityColor, size: 20),
                 ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.white24),
-                    borderRadius: BorderRadius.circular(4),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              ticket.subject.isNotEmpty ? ticket.subject : ticket.category.cleanStatus(),
+                              style: const TextStyle(
+                                fontFamily: 'Plus Jakarta Sans',
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFFF2F4FA),
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: statusColor.withOpacity(0.12),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: statusColor.withOpacity(0.2), width: 1.0),
+                            ),
+                            child: Text(
+                              ticket.status.cleanStatus().toUpperCase(),
+                              style: TextStyle(
+                                color: statusColor,
+                                fontSize: 9,
+                                fontFamily: 'Inter',
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: const Color(0xFF2B3150)),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              ticket.category.cleanStatus(),
+                              style: const TextStyle(
+                                color: Color(0xFF8C92AE),
+                                fontSize: 10,
+                                fontFamily: 'Inter',
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Container(
+                            width: 6,
+                            height: 6,
+                            decoration: BoxDecoration(
+                              color: priorityColor,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            ticket.priority.toLowerCase() == 'high'
+                                ? 'Prioridad Alta'
+                                : ticket.priority.toLowerCase() == 'medium'
+                                    ? 'Prioridad Media'
+                                    : 'Prioridad Baja',
+                            style: TextStyle(
+                              color: priorityColor,
+                              fontSize: 11,
+                              fontFamily: 'Inter',
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                  child: Text(
-                    ticket.category.cleanStatus(),
-                    style: const TextStyle(color: Colors.white60, fontSize: 11),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Container(
-                  width: 6,
-                  height: 6,
-                  decoration: BoxDecoration(
-                    color: priorityColor,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  ticket.priority.toLowerCase() == 'high'
-                      ? 'Prioridad Alta'
-                      : ticket.priority.toLowerCase() == 'medium'
-                          ? 'Prioridad Media'
-                          : 'Prioridad Baja',
-                  style: TextStyle(color: priorityColor, fontSize: 11, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
             if (ticket.description.isNotEmpty) ...[
               const SizedBox(height: 12),
-              const Divider(color: Colors.white10),
-              const SizedBox(height: 8),
+              const Divider(color: Color(0xFF2B3150), height: 1.0),
+              const SizedBox(height: 12),
               Text(
                 ticket.description,
-                style: const TextStyle(color: Colors.white70, fontSize: 13, height: 1.4),
+                style: const TextStyle(
+                  color: Color(0xFF8C92AE),
+                  fontSize: 13,
+                  fontFamily: 'Inter',
+                  height: 1.5,
+                ),
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
               ),
             ],
             if (ticket.createdAt.isNotEmpty) ...[
-              const SizedBox(height: 8),
+              const SizedBox(height: 12),
               Align(
                 alignment: Alignment.bottomRight,
                 child: Text(
                   ticket.createdAt.split('T')[0],
-                  style: const TextStyle(color: Colors.white30, fontSize: 10),
+                  style: const TextStyle(
+                    color: Color(0xFF5C6280),
+                    fontSize: 10,
+                    fontFamily: 'Inter',
+                  ),
                 ),
               ),
             ]
