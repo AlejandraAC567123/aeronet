@@ -27,19 +27,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
   CustomerModel? _profile;
   bool _loading = true;
   String? _error;
-  final _apiUrlController = TextEditingController();
-
   @override
   void initState() {
     super.initState();
     _fetchProfile();
-    final fallbackUrl = dotenv.env['API_BASE_URL'] ?? AppConstants.defaultApiUrl;
-    _apiUrlController.text = StorageService.instance.getApiBaseUrl(fallbackUrl);
   }
 
   @override
   void dispose() {
-    _apiUrlController.dispose();
     super.dispose();
   }
 
@@ -93,18 +88,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (mounted) showMessage(context, 'Error al subir avatar: $e');
     } finally {
       if (mounted) setState(() => _loading = false);
-    }
-  }
-
-  Future<void> _saveApiUrl() async {
-    final url = _apiUrlController.text.trim();
-    if (url.isEmpty) return;
-
-    try {
-      await StorageService.instance.saveApiBaseUrl(url);
-      if (mounted) showMessage(context, 'URL de la API actualizada. Reinicia el flujo para aplicar.');
-    } catch (e) {
-      if (mounted) showMessage(context, 'Error al guardar la URL.');
     }
   }
 
@@ -233,91 +216,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ],
           ),
         ),
-        const SizedBox(height: 16),
 
-        // API settings input
-        GlassContainer(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Parámetros de Desarrollo',
-                style: TextStyle(
-                  fontFamily: 'Plus Jakarta Sans',
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFFF2F4FA),
-                ),
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _apiUrlController,
-                decoration: InputDecoration(
-                  labelText: 'Backend API Base URL',
-                  labelStyle: const TextStyle(fontFamily: 'Inter', color: Color(0xFF8C92AE)),
-                  suffixIcon: IconButton(
-                    icon: const Icon(Icons.save_outlined, color: Color(0xFF4FE6C4)),
-                    onPressed: _saveApiUrl,
-                  ),
-                ),
-                style: const TextStyle(fontFamily: 'Inter', color: Color(0xFFF2F4FA), fontSize: 13),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
-
-        // Notifications & Sockets details
-        GlassContainer(
-          child: Column(
-            children: [
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF4FE6C4).withOpacity(0.12),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Icon(Icons.notifications_active_outlined, color: Color(0xFF4FE6C4)),
-                ),
-                title: const Text(
-                  'Notificaciones Locales',
-                  style: TextStyle(fontFamily: 'Inter', color: Color(0xFFF2F4FA), fontWeight: FontWeight.bold),
-                ),
-                subtitle: const Text(
-                  'Gatillar alerta de prueba local',
-                  style: TextStyle(fontFamily: 'Inter', color: Color(0xFF8C92AE), fontSize: 12),
-                ),
-                trailing: IconButton(
-                  icon: const Icon(Icons.play_circle_outline, color: Color(0xFF4FE6C4), size: 28),
-                  onPressed: () async {
-                    await LocalNotifier.instance.show(
-                      'Notificación de Prueba',
-                      'Hola, esto es una prueba exitosa del canal general de AeroNet.',
-                    );
-                  },
-                ),
-              ),
-              const Divider(color: Color(0xFF2B3150), height: 1.0),
-              const ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Icon(Icons.hub_outlined, color: Color(0xFF5C6280)),
-                ),
-                title: Text(
-                  'Servidor de Sockets',
-                  style: TextStyle(fontFamily: 'Inter', color: Color(0xFF5C6280), fontWeight: FontWeight.bold),
-                ),
-                subtitle: Text(
-                  'El backend de Render no expone gateway websocket activo.',
-                  style: TextStyle(fontFamily: 'Inter', color: Color(0xFF5C6280), fontSize: 12),
-                ),
-              ),
-            ],
-          ),
-        ),
         
         if (_error != null) ...[
           const SizedBox(height: 16),

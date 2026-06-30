@@ -43,7 +43,7 @@ class ServiceRepository {
       if (longitude != null) 'longitude': longitude,
       'ticket_subject': ticketSubject ?? 'Solicitud de Instalación',
       'ticket_description': ticketDescription ?? 'Solicitud de instalación de plan de internet',
-      'ticket_priority': ticketPriority ?? 'ALTA',
+      'ticket_priority': ticketPriority ?? 'high',
     });
     return ServiceModel.fromJson(asMap(response));
   }

@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:aeronet_app_flutter/data/models/ticket_model.dart';
 import 'package:aeronet_app_flutter/data/repositories/ticket_repository.dart';
+import 'package:aeronet_app_flutter/data/models/technician_model.dart';
+import 'package:aeronet_app_flutter/data/repositories/technician_repository.dart';
 
 class TicketsAdminProvider extends ChangeNotifier {
   List<TicketModel> _tickets = [];
+  List<TechnicianModel> _technicians = [];
   bool _isLoading = false;
   String? _errorMessage;
 
   List<TicketModel> get tickets => _tickets;
+  List<TechnicianModel> get technicians => _technicians;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
@@ -17,6 +21,7 @@ class TicketsAdminProvider extends ChangeNotifier {
     notifyListeners();
     try {
       _tickets = await TicketRepository.instance.getTickets();
+      _technicians = await TechnicianRepository.instance.getTechnicians();
     } catch (e) {
       _errorMessage = e.toString();
     } finally {
@@ -25,7 +30,7 @@ class TicketsAdminProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> updateTicketStatus(String id, String status, {String? resolutionNotes}) async {
+  Future<void> updateTicketStatus(String id, String status, {String? resolutionNotes, String? technicianId}) async {
     _isLoading = true;
     notifyListeners();
     try {
@@ -33,6 +38,8 @@ class TicketsAdminProvider extends ChangeNotifier {
         'status': status,
         if (resolutionNotes != null && resolutionNotes.trim().isNotEmpty)
           'resolution_notes': resolutionNotes.trim(),
+        if (technicianId != null && technicianId.isNotEmpty)
+          'technician_id': technicianId,
       });
       _tickets = await TicketRepository.instance.getTickets();
     } catch (e) {

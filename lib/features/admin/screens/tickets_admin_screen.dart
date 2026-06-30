@@ -65,6 +65,7 @@ class _TicketsAdminScreenState extends State<TicketsAdminScreen> {
     _pollingTimer?.cancel();
 
     String selectedStatus = validStatuses.contains(ticket.status) ? ticket.status : 'open';
+    String? selectedTechnicianId = ticket.technicianId;
     final notesController = TextEditingController();
  
     showDialog(
@@ -91,6 +92,25 @@ class _TicketsAdminScreenState extends State<TicketsAdminScreen> {
                         if (val != null) {
                           setDialogState(() => selectedStatus = val);
                         }
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    DropdownButtonFormField<String?>(
+                      value: provider.technicians.any((t) => t.id == selectedTechnicianId) ? selectedTechnicianId : null,
+                      dropdownColor: const Color(0xFF1E293B),
+                      decoration: const InputDecoration(labelText: 'Asignar Técnico (Opcional)'),
+                      style: const TextStyle(color: Colors.white),
+                      items: [
+                        const DropdownMenuItem<String?>(value: null, child: Text('Ninguno', style: TextStyle(color: Colors.white54))),
+                        ...provider.technicians.map((t) {
+                          return DropdownMenuItem<String?>(
+                            value: t.id,
+                            child: Text(t.fullName.isNotEmpty ? t.fullName : 'Técnico sin nombre'),
+                          );
+                        }),
+                      ],
+                      onChanged: (val) {
+                        setDialogState(() => selectedTechnicianId = val);
                       },
                     ),
                     const SizedBox(height: 16),
@@ -121,6 +141,7 @@ class _TicketsAdminScreenState extends State<TicketsAdminScreen> {
                     ticket.id,
                     selectedStatus,
                     resolutionNotes: notesController.text,
+                    technicianId: selectedTechnicianId,
                   );
                   if (ctx.mounted) Navigator.of(ctx).pop();
                 } catch (e) {
@@ -137,9 +158,7 @@ class _TicketsAdminScreenState extends State<TicketsAdminScreen> {
       if (mounted) {
         _pollingTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
           if (mounted) {
-            // ✅ CAMBIO: Usar .read() en lugar de .of() para no suscribirse a cambios en el timer
-            final provider = AppStateProvider.read<TicketsAdminProvider>(context);
-            provider.loadTickets();
+            _provider.loadTickets();
           }
         });
       }
@@ -150,20 +169,18 @@ class _TicketsAdminScreenState extends State<TicketsAdminScreen> {
   Widget build(BuildContext context) {
     final adminProvider = _provider;
  
-    return AppStateProvider<TicketsAdminProvider>(
-      notifier: _provider,
-      child: AppPage(
-        drawer: widget.drawer,
-        title: 'Tickets Soporte',
-        subtitle: 'Monitoreo de Averías (Polling 30s)',
-        actions: [
-          IconButton(
-            tooltip: 'Forzar Recarga',
-            icon: const Icon(Icons.refresh, color: Color(0xFF2DD4BF)),
-            onPressed: () => adminProvider.loadTickets(),
-          ),
-        ],
-        child: RefreshIndicator(
+    return AppPage(
+      drawer: widget.drawer,
+      title: 'Tickets Soporte',
+      subtitle: 'Monitoreo de Averías (Polling 30s)',
+      actions: [
+        IconButton(
+          tooltip: 'Forzar Recarga',
+          icon: const Icon(Icons.refresh, color: Color(0xFF2DD4BF)),
+          onPressed: () => adminProvider.loadTickets(),
+        ),
+      ],
+      child: RefreshIndicator(
         onRefresh: () => adminProvider.loadTickets(),
         child: ListenableBuilder(
           listenable: adminProvider,
@@ -286,12 +303,32 @@ class _TicketsAdminScreenState extends State<TicketsAdminScreen> {
                         if (ticket.createdAt.isNotEmpty) ...
 [
                           const SizedBox(height: 8),
-                          Align(
-                            alignment: Alignment.bottomRight,
-                            child: Text(
-                              'Creado: ${ticket.createdAt.split('T')[0]}',
-                              style: const TextStyle(color: Colors.white30, fontSize: 10),
-                            ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              if (ticket.technicianId != null && ticket.technicianId!.isNotEmpty)
+                                Row(
+                                  children: [
+                                    const Icon(Icons.engineering_outlined, size: 12, color: Colors.white54),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      ticket.technicianName?.isNotEmpty == true
+                                          ? ticket.technicianName!
+                                          : 'Técnico asignado',
+                                      style: const TextStyle(color: Colors.white54, fontSize: 10, fontStyle: FontStyle.italic),
+                                    ),
+                                  ],
+                                )
+                              else
+                                const SizedBox.shrink(),
+                              Align(
+                                alignment: Alignment.bottomRight,
+                                child: Text(
+                                  'Creado: ${ticket.createdAt.split('T')[0]}',
+                                  style: const TextStyle(color: Colors.white30, fontSize: 10),
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ],
@@ -303,6 +340,6 @@ class _TicketsAdminScreenState extends State<TicketsAdminScreen> {
           },
         ),
       ),
-    ));
+    );
   }
 }

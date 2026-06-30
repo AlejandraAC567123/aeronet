@@ -26,21 +26,6 @@ class TicketsClientScreen extends StatelessWidget {
       subtitle: 'Mis Tickets y Consultas',
       actions: [
         IconButton(
-          tooltip: 'Borradores Locales',
-          icon: const Icon(Icons.drafts_outlined, color: Color(0xFF2DD4BF)),
-          onPressed: () {
-            clientProvider.loadLocalDrafts();
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => AppStateProvider<ClientProvider>(
-                  notifier: clientProvider,
-                  child: const DraftsListPage(),
-                ),
-              ),
-            );
-          },
-        ),
-        IconButton(
           tooltip: 'Nuevo Ticket',
           icon: const Icon(Icons.add_comment_outlined, color: Color(0xFF2DD4BF)),
           onPressed: () {
@@ -161,26 +146,6 @@ class _TicketFormPageState extends State<TicketFormPage> {
     }
   }
 
-  Future<void> _saveAsDraft(ClientProvider provider) async {
-    if (_subjectController.text.trim().isEmpty && _descriptionController.text.trim().isEmpty) {
-      showMessage(context, 'Escribe al menos el asunto o la descripción para guardar un borrador.');
-      return;
-    }
-
-    try {
-      await provider.saveDraftTicket(
-        subject: _subjectController.text.trim(),
-        description: _descriptionController.text.trim(),
-        category: _selectedCategory,
-      );
-      if (mounted) {
-        showMessage(context, 'Borrador guardado localmente en SQLite.');
-        Navigator.of(context).pop();
-      }
-    } catch (e) {
-      if (mounted) showMessage(context, 'Error al guardar borrador: $e');
-    }
-  }
 
   Future<void> _submit(ClientProvider provider) async {
     if (!_formKey.currentState!.validate()) return;
@@ -332,29 +297,15 @@ class _TicketFormPageState extends State<TicketFormPage> {
                   const SizedBox(height: 24),
 
                   // Actions buttons
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: _submitting ? null : () => _saveAsDraft(clientProvider),
-                          icon: const Icon(Icons.save_outlined, size: 16),
-                          label: const Text('Borrador SQLite'),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: FilledButton.icon(
-                          onPressed: _submitting ? null : () => _submit(clientProvider),
-                          icon: _submitting
-                              ? const SizedBox.square(
-                                  dimension: 16,
-                                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                                )
-                              : const Icon(Icons.send_outlined, size: 16),
-                          label: const Text('Enviar Ticket'),
-                        ),
-                      ),
-                    ],
+                  FilledButton.icon(
+                    onPressed: _submitting ? null : () => _submit(clientProvider),
+                    icon: _submitting
+                        ? const SizedBox.square(
+                            dimension: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                          )
+                        : const Icon(Icons.send_outlined, size: 16),
+                    label: const Text('Enviar Ticket'),
                   ),
                 ],
               ),
@@ -366,126 +317,3 @@ class _TicketFormPageState extends State<TicketFormPage> {
   }
 }
 
-// Sub Page: Local Drafts Browser
-class DraftsListPage extends StatelessWidget {
-  const DraftsListPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final clientProvider = AppStateProvider.of<ClientProvider>(context);
-
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        title: const Text(
-          'Borradores Locales',
-          style: TextStyle(
-            fontFamily: 'Plus Jakarta Sans',
-            fontWeight: FontWeight.w800,
-            color: Color(0xFFF2F4FA),
-          ),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-      ),
-      body: Container(
-        height: double.infinity,
-        width: double.infinity,
-        color: const Color(0xFF10131F),
-        child: SafeArea(
-          child: ListenableBuilder(
-            listenable: clientProvider,
-            builder: (context, _) {
-              if (clientProvider.localDrafts.isEmpty) {
-                return const EmptyState(
-                  text: 'No tienes borradores locales guardados.',
-                  icon: Icons.drafts_outlined,
-                );
-              }
-
-              return ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount: clientProvider.localDrafts.length,
-                itemBuilder: (context, index) {
-                  final draft = clientProvider.localDrafts[index];
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: GlassContainer(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  draft.subject.isNotEmpty ? draft.subject : 'Borrador sin título',
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.delete_outline, color: Colors.redAccent, size: 20),
-                                onPressed: () => clientProvider.deleteDraft(draft.id!),
-                              ),
-                            ],
-                          ),
-                          Text(
-                            'Categoría: ${draft.category.cleanStatus()}',
-                            style: const TextStyle(color: Colors.white60, fontSize: 12),
-                          ),
-                          const SizedBox(height: 8),
-                          if (draft.description.isNotEmpty) ...[
-                            Text(
-                              draft.description,
-                              style: const TextStyle(color: Colors.white70, fontSize: 13),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 12),
-                          ],
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                '${draft.createdAt.day}/${draft.createdAt.month}/${draft.createdAt.year}',
-                                style: const TextStyle(color: Colors.white30, fontSize: 11),
-                              ),
-                              TextButton.icon(
-                                style: TextButton.styleFrom(foregroundColor: const Color(0xFF2DD4BF)),
-                                icon: const Icon(Icons.edit_note_outlined, size: 16),
-                                label: const Text('Cargar', style: TextStyle(fontSize: 12)),
-                                onPressed: () {
-                                  // Open form page with draft content
-                                  Navigator.of(context).pushReplacement(
-                                    MaterialPageRoute(
-                                      builder: (_) => AppStateProvider<ClientProvider>(
-                                        notifier: clientProvider,
-                                        child: TicketFormPage(
-                                          initialSubject: draft.subject,
-                                          initialDescription: draft.description,
-                                          initialCategory: draft.category,
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              );
-            },
-          ),
-        ),
-      ),
-    );
-  }
-}

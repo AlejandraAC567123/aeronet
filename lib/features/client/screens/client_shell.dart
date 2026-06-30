@@ -34,7 +34,6 @@ class _ClientShellState extends State<ClientShell> {
     super.initState();
     _clientProvider = ClientProvider();
     _clientProvider.loadDashboard();
-    _clientProvider.loadLocalDrafts();
   }
 
   @override

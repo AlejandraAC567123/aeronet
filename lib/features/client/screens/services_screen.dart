@@ -188,7 +188,7 @@ class _ServiceRequestPageState extends State<ServiceRequestPage> {
         ticketDescription: _referenceController.text.trim().isNotEmpty
             ? 'Instalación de plan ${selectedPlan.name}. Referencia: ${_referenceController.text.trim()}'
             : 'Instalación de plan ${selectedPlan.name}.',
-        ticketPriority: 'ALTA',
+        ticketPriority: 'high',
       );
       if (mounted) {
         Navigator.of(context).pop();

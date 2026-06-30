@@ -14,7 +14,6 @@ class ClientProvider extends ChangeNotifier {
   List<ServiceModel> _myServices = [];
   List<TicketModel> _myTickets = [];
   List<PlanModel> _allPlans = [];
-  List<TicketDraft> _localDrafts = [];
   
   bool _isLoading = false;
   String? _errorMessage;
@@ -30,7 +29,6 @@ class ClientProvider extends ChangeNotifier {
     _currentTabIndex = index;
     notifyListeners();
   }
-  List<TicketDraft> get localDrafts => _localDrafts;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
@@ -93,13 +91,6 @@ class ClientProvider extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }
-  }
-
-  Future<void> loadLocalDrafts() async {
-    try {
-      _localDrafts = await TicketRepository.instance.getLocalDrafts();
-      notifyListeners();
-    } catch (_) {}
   }
 
   // Repository fetch helpers
@@ -205,24 +196,5 @@ class ClientProvider extends ChangeNotifier {
     }
   }
 
-  // Draft Actions
-  Future<void> saveDraftTicket({
-    required String subject,
-    required String description,
-    required String category,
-  }) async {
-    final draft = TicketDraft(
-      subject: subject,
-      description: description,
-      category: category,
-      createdAt: DateTime.now(),
-    );
-    await TicketRepository.instance.saveLocalDraft(draft);
-    await loadLocalDrafts();
-  }
-
-  Future<void> deleteDraft(int id) async {
-    await TicketRepository.instance.deleteLocalDraft(id);
-    await loadLocalDrafts();
-  }
+  // Draft Actions removed
 }

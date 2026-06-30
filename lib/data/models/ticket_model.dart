@@ -9,6 +9,7 @@ class TicketModel {
   final String createdAt;
   final String? customerId;
   final String? technicianId;
+  final String? technicianName;
 
   TicketModel({
     required this.id,
@@ -21,6 +22,7 @@ class TicketModel {
     required this.createdAt,
     this.customerId,
     this.technicianId,
+    this.technicianName,
   });
 
   factory TicketModel.fromJson(Map<String, dynamic> json) {
@@ -35,6 +37,7 @@ class TicketModel {
       createdAt: '${json['created_at'] ?? json['createdAt'] ?? ''}',
       customerId: json['customer_id']?.toString() ?? json['customer']?['id']?.toString(),
       technicianId: json['technician_id']?.toString() ?? json['technician']?['id']?.toString(),
+      technicianName: json['technician']?['full_name']?.toString() ?? json['technician_name']?.toString(),
     );
   }
 
@@ -50,6 +53,7 @@ class TicketModel {
       'created_at': createdAt,
       'customer_id': customerId,
       'technician_id': technicianId,
+      'technician_name': technicianName,
     };
   }
 }
