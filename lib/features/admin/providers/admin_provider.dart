@@ -9,6 +9,10 @@ import 'package:aeronet_app_flutter/data/repositories/plan_repository.dart';
 import 'package:aeronet_app_flutter/data/repositories/ticket_repository.dart';
 import 'package:aeronet_app_flutter/data/repositories/invoice_repository.dart';
 import 'package:aeronet_app_flutter/data/repositories/technician_repository.dart';
+import 'package:aeronet_app_flutter/data/models/payment_model.dart';
+import 'package:aeronet_app_flutter/data/models/service_model.dart';
+import 'package:aeronet_app_flutter/data/repositories/payment_repository.dart';
+import 'package:aeronet_app_flutter/data/repositories/service_repository.dart';
 
 class AdminProvider extends ChangeNotifier {
   List<CustomerModel> _customers = [];
@@ -16,6 +20,8 @@ class AdminProvider extends ChangeNotifier {
   List<TicketModel> _tickets = [];
   List<InvoiceModel> _invoices = [];
   List<TechnicianModel> _technicians = [];
+  List<PaymentModel> _payments = [];
+  List<ServiceModel> _services = [];
 
   bool _isLoading = false;
   String? _errorMessage;
@@ -25,6 +31,33 @@ class AdminProvider extends ChangeNotifier {
   List<TicketModel> get tickets => _tickets;
   List<InvoiceModel> get invoices => _invoices;
   List<TechnicianModel> get technicians => _technicians;
+  List<PaymentModel> get payments => _payments;
+  List<ServiceModel> get services => _services;
+
+  // Computed properties for Dashboard
+  int get totalCustomers => _customers.length;
+  
+  int get totalActiveServices {
+    return _services.where((s) => s.status.toLowerCase() == 'active' || s.status.toLowerCase() == 'activo').length;
+  }
+  
+  int get totalPendingTickets {
+    return _tickets.where((t) => t.status.toLowerCase() == 'open' || t.status.toLowerCase() == 'in_progress').length;
+  }
+  
+  double get totalOutstandingAmount {
+    return _invoices.where((i) => i.status.toLowerCase() == 'pending').fold(0.0, (sum, i) => sum + i.amount);
+  }
+  
+  List<PaymentModel> get recentPayments {
+    final list = List<PaymentModel>.from(_payments);
+    list.sort((a, b) {
+      final dateA = a.createdAt ?? a.paymentDate ?? '';
+      final dateB = b.createdAt ?? b.paymentDate ?? '';
+      return dateB.compareTo(dateA); // descending
+    });
+    return list.take(5).toList();
+  }
   
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
@@ -40,6 +73,8 @@ class AdminProvider extends ChangeNotifier {
         _fetchTickets(),
         _fetchInvoices(),
         _fetchTechnicians(),
+        _fetchPayments(),
+        _fetchServices(),
       ]);
     } catch (e) {
       _errorMessage = e.toString();
@@ -119,6 +154,34 @@ class AdminProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> loadPayments() async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+    try {
+      await _fetchPayments();
+    } catch (e) {
+      _errorMessage = e.toString();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> loadServices() async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+    try {
+      await _fetchServices();
+    } catch (e) {
+      _errorMessage = e.toString();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   // Fetch helpers
   Future<void> _fetchCustomers() async {
     _customers = await CustomerRepository.instance.getCustomers();
@@ -138,6 +201,14 @@ class AdminProvider extends ChangeNotifier {
 
   Future<void> _fetchTechnicians() async {
     _technicians = await TechnicianRepository.instance.getTechnicians();
+  }
+
+  Future<void> _fetchPayments() async {
+    _payments = await PaymentRepository.instance.getPayments();
+  }
+
+  Future<void> _fetchServices() async {
+    _services = await ServiceRepository.instance.getServices();
   }
 
   // Customers actions

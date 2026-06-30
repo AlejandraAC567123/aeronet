@@ -9,6 +9,9 @@ class ServiceModel {
   final double? latitude;
   final double? longitude;
   final String? customerId;
+  final String? customerName;
+  final double? monthlyAmount;
+  final int? billingDay;
 
   ServiceModel({
     required this.id,
@@ -19,6 +22,9 @@ class ServiceModel {
     this.latitude,
     this.longitude,
     this.customerId,
+    this.customerName,
+    this.monthlyAmount,
+    this.billingDay,
   });
 
   factory ServiceModel.fromJson(Map<String, dynamic> json) {
@@ -38,6 +44,9 @@ class ServiceModel {
       latitude: double.tryParse('${json['latitude'] ?? json['lat'] ?? ''}'),
       longitude: double.tryParse('${json['longitude'] ?? json['lng'] ?? ''}'),
       customerId: '${json['customer_id'] ?? json['customerId'] ?? ''}',
+      customerName: json['customer'] is Map ? '${json['customer']['full_name'] ?? ''}' : null,
+      monthlyAmount: double.tryParse('${json['monthly_amount'] ?? ''}'),
+      billingDay: int.tryParse('${json['billing_day'] ?? ''}'),
     );
   }
 
@@ -51,6 +60,9 @@ class ServiceModel {
       'latitude': latitude,
       'longitude': longitude,
       'customer_id': customerId,
+      'customer_name': customerName,
+      'monthly_amount': monthlyAmount,
+      'billing_day': billingDay,
     };
   }
 }

@@ -1,0 +1,175 @@
+import 'package:flutter/material.dart';
+import 'package:aeronet_app_flutter/core/utils/app_state_provider.dart';
+import 'package:aeronet_app_flutter/features/admin/providers/admin_provider.dart';
+import 'package:aeronet_app_flutter/shared/widgets/app_page.dart';
+import 'package:aeronet_app_flutter/shared/widgets/loading_widget.dart';
+import 'package:aeronet_app_flutter/shared/widgets/error_state.dart';
+import 'package:aeronet_app_flutter/shared/widgets/empty_state.dart';
+import 'package:aeronet_app_flutter/shared/widgets/glass_container.dart';
+import 'package:aeronet_app_flutter/features/admin/widgets/stat_card.dart';
+import 'package:aeronet_app_flutter/core/utils/helpers.dart';
+
+class DashboardAdminScreen extends StatelessWidget {
+  const DashboardAdminScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final adminProvider = AppStateProvider.of<AdminProvider>(context);
+
+    return AppPage(
+      title: 'Panel General',
+      subtitle: 'Resumen del sistema',
+      child: RefreshIndicator(
+        onRefresh: () => adminProvider.loadAllAdminData(),
+        child: ListenableBuilder(
+          listenable: adminProvider,
+          builder: (context, _) {
+            if (adminProvider.isLoading && adminProvider.customers.isEmpty && adminProvider.payments.isEmpty) {
+              return const LoadingWidget(message: 'Cargando datos...');
+            }
+
+            if (adminProvider.errorMessage != null) {
+              return ErrorState(
+                error: adminProvider.errorMessage!,
+                onRetry: () => adminProvider.loadAllAdminData(),
+              );
+            }
+
+            return CustomScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              slivers: [
+                SliverPadding(
+                  padding: const EdgeInsets.all(16),
+                  sliver: SliverToBoxAdapter(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Statistics Grid
+                        GridView.count(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          childAspectRatio: 1.5,
+                          children: [
+                            StatCard(
+                              label: 'Clientes',
+                              value: '${adminProvider.totalCustomers}',
+                              icon: Icons.people_outline,
+                            ),
+                            StatCard(
+                              label: 'Servicios Activos',
+                              value: '${adminProvider.totalActiveServices}',
+                              icon: Icons.wifi_tethering,
+                              color: const Color(0xFF2DD4BF),
+                            ),
+                            StatCard(
+                              label: 'Tickets Pendientes',
+                              value: '${adminProvider.totalPendingTickets}',
+                              icon: Icons.support_agent_outlined,
+                              color: Colors.orangeAccent,
+                            ),
+                            StatCard(
+                              label: 'Por Cobrar',
+                              value: money(adminProvider.totalOutstandingAmount),
+                              icon: Icons.account_balance_wallet_outlined,
+                              color: Colors.redAccent,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 32),
+                        const Text(
+                          'Pagos Recientes',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        _buildRecentPayments(adminProvider),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRecentPayments(AdminProvider provider) {
+    final payments = provider.recentPayments;
+
+    if (payments.isEmpty) {
+      return const EmptyState(
+        text: 'Aún no hay pagos registrados.',
+        icon: Icons.payments_outlined,
+      );
+    }
+
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: payments.length,
+      itemBuilder: (context, index) {
+        final payment = payments[index];
+        final date = payment.paymentDate ?? payment.createdAt ?? '';
+        final displayDate = date.isNotEmpty ? date.split('T')[0] : '--';
+
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: GlassContainer(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        payment.customerName ?? 'Cliente',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Método: ${payment.displayMethod}',
+                        style: const TextStyle(color: Colors.white70),
+                      ),
+                    ],
+                  ),
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      money(payment.amountReceived),
+                      style: const TextStyle(
+                        color: Color(0xFF2DD4BF),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      displayDate,
+                      style: const TextStyle(color: Colors.white54, fontSize: 12),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
