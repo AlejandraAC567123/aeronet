@@ -30,7 +30,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchProfile();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authProvider = AppStateProvider.of<AuthProvider>(context);
+      if (authProvider.currentUser?.role != 'admin') {
+        _fetchProfile();
+      } else {
+        setState(() => _loading = false);
+      }
+    });
   }
 
   @override
@@ -114,6 +121,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildContent(BuildContext context, AuthProvider authProvider, dynamic user) {
+    final isAdmin = user?.role == 'admin';
+
     return ListView(
       padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 100), // Aire inferior para barra inferior extendida
       children: [
@@ -124,27 +133,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
               CircleAvatar(
                 radius: 60,
                 backgroundColor: const Color(0xFF222840), // Superficie secundaria
-                backgroundImage: _profile != null && _profile!.avatarUrl.isNotEmpty
-                    ? NetworkImage(_profile!.avatarUrl)
-                    : null,
-                child: _profile == null || _profile!.avatarUrl.isEmpty
+                backgroundImage: isAdmin
+                    ? const AssetImage('assets/images/aeronet_logo.png') as ImageProvider
+                    : (_profile != null && _profile!.avatarUrl.isNotEmpty
+                        ? NetworkImage(_profile!.avatarUrl)
+                        : null),
+                child: (!isAdmin && (_profile == null || _profile!.avatarUrl.isEmpty))
                     ? const Icon(Icons.person, size: 60, color: Color(0xFF8C92AE))
                     : null,
               ),
-              Positioned(
-                bottom: 0,
-                right: 0,
-                child: Container(
-                  decoration: const BoxDecoration(
-                    color: Color(0xFF4FE6C4), // Menta
-                    shape: BoxShape.circle,
-                  ),
-                  child: IconButton(
-                    icon: const Icon(Icons.camera_alt_outlined, color: Color(0xFF10131F), size: 20),
-                    onPressed: () => _showAvatarPickerOptions(context),
+              if (!isAdmin)
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      color: Color(0xFF4FE6C4), // Menta
+                      shape: BoxShape.circle,
+                    ),
+                    child: IconButton(
+                      icon: const Icon(Icons.camera_alt_outlined, color: Color(0xFF10131F), size: 20),
+                      onPressed: () => _showAvatarPickerOptions(context),
+                    ),
                   ),
                 ),
-              ),
             ],
           ),
         ),
