@@ -13,7 +13,8 @@ import 'package:aeronet_app_flutter/core/routes/app_routes.dart';
 import 'package:aeronet_app_flutter/data/repositories/customer_repository.dart';
 import 'package:aeronet_app_flutter/data/models/customer_model.dart';
 import 'package:aeronet_app_flutter/data/services/storage_service.dart';
-import 'package:aeronet_app_flutter/core/constants/app_constants.dart';
+import 'package:aeronet_app_flutter/shared/widgets/icon_container.dart';
+import 'package:aeronet_app_flutter/core/theme/app_theme.dart';
 
 class ProfileScreen extends StatefulWidget {
   final Widget? drawer;
@@ -32,7 +33,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final authProvider = AppStateProvider.of<AuthProvider>(context);
-      if (authProvider.currentUser?.role != 'admin') {
+      final role = authProvider.currentUser?.role.toLowerCase().trim() ?? '';
+      if (role != 'admin') {
         _fetchProfile();
       } else {
         setState(() => _loading = false);
@@ -121,7 +123,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildContent(BuildContext context, AuthProvider authProvider, dynamic user) {
-    final isAdmin = user?.role == 'admin';
+    final isAdmin = user?.role.toLowerCase().trim() == 'admin';
 
     return ListView(
       padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 100), // Aire inferior para barra inferior extendida
@@ -148,11 +150,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   right: 0,
                   child: Container(
                     decoration: const BoxDecoration(
-                      color: Color(0xFF4FE6C4), // Menta
+                      color: AppTheme.accentColor, // Menta
                       shape: BoxShape.circle,
                     ),
                     child: IconButton(
-                      icon: const Icon(Icons.camera_alt_outlined, color: Color(0xFF10131F), size: 20),
+                      icon: const Icon(Icons.camera_alt_outlined, color: AppTheme.backgroundColor, size: 20),
                       onPressed: () => _showAvatarPickerOptions(context),
                     ),
                   ),
@@ -173,7 +175,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   fontFamily: 'Plus Jakarta Sans',
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFFF2F4FA),
+                  color: AppTheme.textPrimaryColor,
                 ),
               ),
               const SizedBox(height: 6),
@@ -182,25 +184,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 style: const TextStyle(
                   fontFamily: 'Inter',
                   fontSize: 14,
-                  color: Color(0xFF8C92AE),
+                  color: AppTheme.textSecondaryColor,
                 ),
               ),
               if (_profile != null && _profile!.phone.isNotEmpty) ...[
                 const SizedBox(height: 16),
                 Row(
                   children: [
-                    Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF4FE6C4).withOpacity(0.12),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Icon(Icons.phone_outlined, size: 16, color: Color(0xFF4FE6C4)),
+                    const IconContainer(
+                      icon: Icons.phone_outlined,
+                      color: AppTheme.accentColor,
                     ),
                     const SizedBox(width: 12),
                     Text(
                       _profile!.phone,
-                      style: const TextStyle(fontFamily: 'Inter', color: Color(0xFFF2F4FA)),
+                      style: const TextStyle(fontFamily: 'Inter', color: AppTheme.textPrimaryColor),
                     ),
                   ],
                 ),
@@ -209,18 +207,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const SizedBox(height: 12),
                 Row(
                   children: [
-                    Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF4FE6C4).withOpacity(0.12),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Icon(Icons.badge_outlined, size: 16, color: Color(0xFF4FE6C4)),
+                    const IconContainer(
+                      icon: Icons.badge_outlined,
+                      color: AppTheme.accentColor,
                     ),
                     const SizedBox(width: 12),
                     Text(
                       '${_profile!.documentType}: ${_profile!.documentNumber}',
-                      style: const TextStyle(fontFamily: 'Inter', color: Color(0xFFF2F4FA)),
+                      style: const TextStyle(fontFamily: 'Inter', color: AppTheme.textPrimaryColor),
                     ),
                   ],
                 ),
@@ -234,7 +228,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const SizedBox(height: 16),
           Text(
             'Error al refrescar datos del backend: $_error',
-            style: const TextStyle(color: Color(0xFFFF6B6B), fontSize: 12, fontFamily: 'Inter'),
+            style: const TextStyle(color: AppTheme.errorColor, fontSize: 12, fontFamily: 'Inter'),
             textAlign: TextAlign.center,
           ),
         ],
@@ -242,17 +236,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
         const SizedBox(height: 32),
 
         // Logout
-        FilledButton.icon(
-          style: FilledButton.styleFrom(
-            backgroundColor: const Color(0xFFFF6B6B), // Coral
-            foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        OutlinedButton.icon(
+          style: OutlinedButton.styleFrom(
+            side: const BorderSide(color: AppTheme.errorColor),
+            foregroundColor: AppTheme.errorColor,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
           ),
           onPressed: () => _logout(authProvider),
-          icon: const Icon(Icons.logout, color: Colors.white),
+          icon: const Icon(Icons.logout),
           label: const Text(
             'Cerrar Sesión',
-            style: TextStyle(fontFamily: 'Inter', color: Colors.white, fontWeight: FontWeight.bold),
+            style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.bold),
           ),
         ),
       ],
@@ -262,7 +257,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void _showAvatarPickerOptions(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF1A1E30), // Surface background
+      backgroundColor: AppTheme.cardColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
       ),
@@ -271,16 +266,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: Wrap(
             children: [
               ListTile(
-                leading: const Icon(Icons.photo_library_outlined, color: Color(0xFF4FE6C4)),
-                title: const Text('Galería', style: TextStyle(fontFamily: 'Inter', color: Color(0xFFF2F4FA))),
+                leading: const Icon(Icons.photo_library_outlined, color: AppTheme.accentColor),
+                title: const Text('Galería', style: TextStyle(fontFamily: 'Inter', color: AppTheme.textPrimaryColor)),
                 onTap: () {
                   Navigator.of(context).pop();
                   _pickAndUploadAvatar(ImageSource.gallery);
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.photo_camera_outlined, color: Color(0xFF4FE6C4)),
-                title: const Text('Cámara', style: TextStyle(fontFamily: 'Inter', color: Color(0xFFF2F4FA))),
+                leading: const Icon(Icons.photo_camera_outlined, color: AppTheme.accentColor),
+                title: const Text('Cámara', style: TextStyle(fontFamily: 'Inter', color: AppTheme.textPrimaryColor)),
                 onTap: () {
                   Navigator.of(context).pop();
                   _pickAndUploadAvatar(ImageSource.camera);

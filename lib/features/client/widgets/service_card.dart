@@ -3,6 +3,9 @@ import 'package:aeronet_app_flutter/data/models/service_model.dart';
 import 'package:aeronet_app_flutter/shared/widgets/glass_container.dart';
 import 'package:aeronet_app_flutter/shared/extensions/string_extensions.dart';
 import 'package:aeronet_app_flutter/shared/widgets/signal_indicator.dart';
+import 'package:aeronet_app_flutter/shared/widgets/status_badge.dart';
+import 'package:aeronet_app_flutter/shared/widgets/icon_container.dart';
+import 'package:aeronet_app_flutter/core/theme/app_theme.dart';
 
 class ServiceCard extends StatelessWidget {
   const ServiceCard({super.key, required this.service});
@@ -15,7 +18,19 @@ class ServiceCard extends StatelessWidget {
     final hasCoordinates = service.latitude != null && service.longitude != null;
     final isActivo = service.status.toLowerCase() == 'activo' || service.status.toLowerCase() == 'active';
     
-    final statusColor = isActivo ? const Color(0xFF4FE6C4) : const Color(0xFFFFB454); // Menta o Ámbar
+    StatusType statusType;
+    switch (service.status.toLowerCase()) {
+      case 'activo':
+      case 'active':
+        statusType = StatusType.active;
+        break;
+      case 'pending':
+      case 'pendiente':
+        statusType = StatusType.pending;
+        break;
+      default:
+        statusType = StatusType.neutral;
+    }
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
@@ -33,36 +48,21 @@ class ServiceCard extends StatelessWidget {
                       fontFamily: 'Plus Jakarta Sans',
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFFF2F4FA),
+                      color: AppTheme.textPrimaryColor,
                     ),
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: statusColor.withOpacity(0.12),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: statusColor.withOpacity(0.2), width: 1.0),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (isActivo) ...[
-                        const SignalIndicator(activeBars: 4, size: 10),
-                        const SizedBox(width: 6),
-                      ],
-                      Text(
-                        service.status.cleanStatus().toUpperCase(),
-                        style: TextStyle(
-                          color: statusColor,
-                          fontSize: 10,
-                          fontFamily: 'Inter',
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
+                Row(
+                  children: [
+                    if (isActivo) ...[
+                      const SignalIndicator(activeBars: 4, size: 10),
+                      const SizedBox(width: 8),
                     ],
-                  ),
+                    StatusBadge(
+                      label: service.status.cleanStatus().toUpperCase(),
+                      type: statusType,
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -70,13 +70,9 @@ class ServiceCard extends StatelessWidget {
             if (plan != null) ...[
               Row(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF4FE6C4).withOpacity(0.12),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: const Icon(Icons.speed_outlined, size: 18, color: Color(0xFF4FE6C4)),
+                  const IconContainer(
+                    icon: Icons.speed_outlined,
+                    color: AppTheme.accentColor,
                   ),
                   const SizedBox(width: 12),
                   Column(
@@ -84,13 +80,13 @@ class ServiceCard extends StatelessWidget {
                     children: [
                       const Text(
                         'Velocidad de bajada',
-                        style: TextStyle(color: Color(0xFF8C92AE), fontSize: 11, fontFamily: 'Inter'),
+                        style: TextStyle(color: AppTheme.textSecondaryColor, fontSize: 11, fontFamily: 'Inter'),
                       ),
                       const SizedBox(height: 2),
                       Text(
                         '${plan.speedMbps} Mbps',
                         style: const TextStyle(
-                          color: Color(0xFFF2F4FA),
+                          color: AppTheme.textPrimaryColor,
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
                           fontFamily: 'Inter',
@@ -102,18 +98,14 @@ class ServiceCard extends StatelessWidget {
               ),
               const SizedBox(height: 16),
             ],
-            const Divider(color: Color(0xFF2B3150), height: 1.0),
+            const Divider(color: AppTheme.borderDividerColor, height: 1.0),
             const SizedBox(height: 16),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF8C92AE).withOpacity(0.12),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Icon(Icons.home_outlined, size: 18, color: Color(0xFF8C92AE)),
+                const IconContainer(
+                  icon: Icons.home_outlined,
+                  color: AppTheme.textSecondaryColor,
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -122,13 +114,13 @@ class ServiceCard extends StatelessWidget {
                     children: [
                       const Text(
                         'Dirección de instalación',
-                        style: TextStyle(color: Color(0xFF8C92AE), fontSize: 11, fontFamily: 'Inter'),
+                        style: TextStyle(color: AppTheme.textSecondaryColor, fontSize: 11, fontFamily: 'Inter'),
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        service.address,
+                        service.address.isEmpty ? 'No registrada' : service.address,
                         style: const TextStyle(
-                          color: Color(0xFFF2F4FA),
+                          color: AppTheme.textPrimaryColor,
                           fontWeight: FontWeight.w500,
                           fontFamily: 'Inter',
                           fontSize: 13,
@@ -139,7 +131,7 @@ class ServiceCard extends StatelessWidget {
                         Text(
                           'Referencia: ${service.reference}',
                           style: const TextStyle(
-                            color: Color(0xFF8C92AE),
+                            color: AppTheme.textSecondaryColor,
                             fontSize: 12,
                             fontFamily: 'Inter',
                           ),
@@ -155,12 +147,12 @@ class ServiceCard extends StatelessWidget {
               Row(
                 children: [
                   const SizedBox(width: 42),
-                  const Icon(Icons.pin_drop_outlined, size: 14, color: Color(0xFF5C6280)),
+                  const Icon(Icons.pin_drop_outlined, size: 14, color: AppTheme.textTertiaryColor),
                   const SizedBox(width: 6),
                   Text(
                     'GPS: ${service.latitude!.toStringAsFixed(5)}, ${service.longitude!.toStringAsFixed(5)}',
                     style: const TextStyle(
-                      color: Color(0xFF5C6280),
+                      color: AppTheme.textTertiaryColor,
                       fontSize: 11,
                       fontFamily: 'monospace',
                     ),

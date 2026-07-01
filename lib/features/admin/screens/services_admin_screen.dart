@@ -7,6 +7,7 @@ import 'package:aeronet_app_flutter/shared/widgets/error_state.dart';
 import 'package:aeronet_app_flutter/shared/widgets/empty_state.dart';
 import 'package:aeronet_app_flutter/shared/widgets/glass_container.dart';
 import 'package:aeronet_app_flutter/core/utils/helpers.dart';
+import 'package:aeronet_app_flutter/core/theme/app_theme.dart';
 
 class ServicesAdminScreen extends StatefulWidget {
   final Widget? drawer;
@@ -46,7 +47,7 @@ class _ServicesAdminScreenState extends State<ServicesAdminScreen> {
       actions: [
         IconButton(
           tooltip: 'Actualizar',
-          icon: const Icon(Icons.refresh, color: Colors.white),
+          icon: const Icon(Icons.refresh, color: AppTheme.textPrimaryColor),
           onPressed: () => adminProvider.loadServices(),
         ),
       ],
@@ -84,15 +85,15 @@ class _ServicesAdminScreenState extends State<ServicesAdminScreen> {
                 switch (service.status.toLowerCase()) {
                   case 'active':
                   case 'activo':
-                    statusColor = const Color(0xFF2DD4BF);
+                    statusColor = AppTheme.accentColor;
                     break;
                   case 'pending':
                   case 'pendiente':
-                    statusColor = Colors.orangeAccent;
+                    statusColor = AppTheme.alertColor;
                     break;
                   case 'suspended':
                   case 'suspendido':
-                    statusColor = Colors.redAccent;
+                    statusColor = AppTheme.errorColor;
                     break;
                   default:
                     statusColor = Colors.grey;
@@ -112,7 +113,7 @@ class _ServicesAdminScreenState extends State<ServicesAdminScreen> {
                               child: Text(
                                 service.customerName ?? 'Cliente desconocido',
                                 style: const TextStyle(
-                                  color: Colors.white,
+                                  color: AppTheme.textPrimaryColor,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16,
                                 ),
@@ -140,18 +141,18 @@ class _ServicesAdminScreenState extends State<ServicesAdminScreen> {
                           const SizedBox(height: 8),
                           Text(
                             'Plan: ${service.plan!.name}',
-                            style: const TextStyle(color: Colors.white70),
+                            style: const TextStyle(color: AppTheme.textSecondaryColor),
                           ),
                         ],
                         const SizedBox(height: 8),
                         Row(
                           children: [
-                            const Icon(Icons.location_on_outlined, color: Colors.white54, size: 16),
+                            const Icon(Icons.location_on_outlined, color: AppTheme.textSecondaryColor, size: 16),
                             const SizedBox(width: 4),
                             Expanded(
                               child: Text(
                                 service.address,
-                                style: const TextStyle(color: Colors.white54),
+                                style: const TextStyle(color: AppTheme.textSecondaryColor),
                               ),
                             ),
                           ],
@@ -161,7 +162,7 @@ class _ServicesAdminScreenState extends State<ServicesAdminScreen> {
                           Text(
                             'Mensualidad: ${money(service.monthlyAmount)}',
                             style: const TextStyle(
-                              color: Color(0xFF2DD4BF),
+                              color: AppTheme.accentColor,
                               fontWeight: FontWeight.w600,
                             ),
                           ),

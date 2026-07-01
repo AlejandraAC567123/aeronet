@@ -11,6 +11,7 @@ import 'package:aeronet_app_flutter/features/admin/widgets/admin_invoice_card.da
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
+import 'package:aeronet_app_flutter/core/theme/app_theme.dart';
 
 class InvoicesAdminScreen extends StatefulWidget {
   final Widget? drawer;
@@ -162,7 +163,7 @@ class _InvoicesAdminScreenState extends State<InvoicesAdminScreen> {
       actions: [
         IconButton(
           tooltip: 'Exportar a PDF',
-          icon: const Icon(Icons.picture_as_pdf_outlined, color: Color(0xFF2DD4BF)),
+          icon: const Icon(Icons.picture_as_pdf_outlined, color: AppTheme.accentColor),
           onPressed: () => _exportInvoicesReport(context, adminProvider),
         ),
       ],

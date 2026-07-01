@@ -7,6 +7,7 @@ import 'package:aeronet_app_flutter/shared/widgets/error_state.dart';
 import 'package:aeronet_app_flutter/shared/widgets/empty_state.dart';
 import 'package:aeronet_app_flutter/shared/widgets/glass_container.dart';
 import 'package:aeronet_app_flutter/core/utils/helpers.dart';
+import 'package:aeronet_app_flutter/core/theme/app_theme.dart';
 
 class PaymentsAdminScreen extends StatefulWidget {
   final Widget? drawer;
@@ -46,7 +47,7 @@ class _PaymentsAdminScreenState extends State<PaymentsAdminScreen> {
       actions: [
         IconButton(
           tooltip: 'Actualizar',
-          icon: const Icon(Icons.refresh, color: Colors.white),
+          icon: const Icon(Icons.refresh, color: AppTheme.textPrimaryColor),
           onPressed: () => adminProvider.loadPayments(),
         ),
       ],
@@ -96,7 +97,7 @@ class _PaymentsAdminScreenState extends State<PaymentsAdminScreen> {
                               child: Text(
                                 payment.customerName ?? 'Cliente',
                                 style: const TextStyle(
-                                  color: Colors.white,
+                                  color: AppTheme.textPrimaryColor,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16,
                                 ),
@@ -105,7 +106,7 @@ class _PaymentsAdminScreenState extends State<PaymentsAdminScreen> {
                             Text(
                               money(payment.amountReceived),
                               style: const TextStyle(
-                                color: Color(0xFF2DD4BF),
+                                color: AppTheme.accentColor,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
                               ),
@@ -118,11 +119,11 @@ class _PaymentsAdminScreenState extends State<PaymentsAdminScreen> {
                           children: [
                             Text(
                               'Método: ${payment.displayMethod}',
-                              style: const TextStyle(color: Colors.white70),
+                              style: const TextStyle(color: AppTheme.textSecondaryColor),
                             ),
                             Text(
                               displayDate,
-                              style: const TextStyle(color: Colors.white54, fontSize: 12),
+                              style: const TextStyle(color: AppTheme.textSecondaryColor, fontSize: 12),
                             ),
                           ],
                         ),
@@ -130,7 +131,7 @@ class _PaymentsAdminScreenState extends State<PaymentsAdminScreen> {
                           const SizedBox(height: 4),
                           Text(
                             'Ref: ${payment.transactionReference}',
-                            style: const TextStyle(color: Colors.white54, fontSize: 12),
+                            style: const TextStyle(color: AppTheme.textSecondaryColor, fontSize: 12),
                           ),
                         ]
                       ],

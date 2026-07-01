@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:aeronet_app_flutter/data/models/ticket_model.dart';
 import 'package:aeronet_app_flutter/shared/widgets/glass_container.dart';
 import 'package:aeronet_app_flutter/shared/extensions/string_extensions.dart';
+import 'package:aeronet_app_flutter/shared/widgets/status_badge.dart';
+import 'package:aeronet_app_flutter/shared/widgets/icon_container.dart';
+import 'package:aeronet_app_flutter/core/theme/app_theme.dart';
 
 class TicketCard extends StatelessWidget {
   const TicketCard({super.key, required this.ticket});
@@ -11,26 +14,26 @@ class TicketCard extends StatelessWidget {
   Color _getPriorityColor(String priority) {
     switch (priority.toLowerCase()) {
       case 'high':
-        return const Color(0xFFFF6B6B); // Coral (Error/High)
+        return AppTheme.errorColor; // Coral (Error/High)
       case 'medium':
-        return const Color(0xFFFFB454); // Ámbar (Alerta/Medium)
+        return AppTheme.alertColor; // Ámbar (Alerta/Medium)
       case 'low':
       default:
-        return const Color(0xFF4FE6C4); // Menta (Positivo/Low)
+        return AppTheme.accentColor; // Menta (Positivo/Low)
     }
   }
 
-  Color _getStatusColor(String status) {
+  StatusType _getStatusType(String status) {
     switch (status.toLowerCase()) {
       case 'resolved':
       case 'closed':
-        return const Color(0xFF4FE6C4); // Menta
+        return StatusType.active;
       case 'in_progress':
       case 'assigned':
-        return const Color(0xFFFFB454); // Ámbar
+        return StatusType.pending;
       case 'open':
       default:
-        return const Color(0xFF8C92AE); // Gris secundario
+        return StatusType.neutral;
     }
   }
 
@@ -53,7 +56,7 @@ class TicketCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final statusColor = _getStatusColor(ticket.status);
+    final statusType = _getStatusType(ticket.status);
     final priorityColor = _getPriorityColor(ticket.priority);
     final categoryIcon = _getCategoryIcon(ticket.category);
 
@@ -67,13 +70,9 @@ class TicketCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Icono de categoría translúcido
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: priorityColor.withOpacity(0.12),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(categoryIcon, color: priorityColor, size: 20),
+                IconContainer(
+                  icon: categoryIcon,
+                  color: priorityColor,
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -90,30 +89,16 @@ class TicketCard extends StatelessWidget {
                                 fontFamily: 'Plus Jakarta Sans',
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
-                                color: Color(0xFFF2F4FA),
+                                color: AppTheme.textPrimaryColor,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
                           const SizedBox(width: 8),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: statusColor.withOpacity(0.12),
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: statusColor.withOpacity(0.2), width: 1.0),
-                            ),
-                            child: Text(
-                              ticket.status.cleanStatus().toUpperCase(),
-                              style: TextStyle(
-                                color: statusColor,
-                                fontSize: 9,
-                                fontFamily: 'Inter',
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 0.5,
-                              ),
-                            ),
+                          StatusBadge(
+                            label: ticket.status.cleanStatus().toUpperCase(),
+                            type: statusType,
                           ),
                         ],
                       ),
@@ -123,13 +108,13 @@ class TicketCard extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(
-                              border: Border.all(color: const Color(0xFF2B3150)),
+                              border: Border.all(color: AppTheme.borderDividerColor),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
                               ticket.category.cleanStatus(),
                               style: const TextStyle(
-                                color: Color(0xFF8C92AE),
+                                color: AppTheme.textSecondaryColor,
                                 fontSize: 10,
                                 fontFamily: 'Inter',
                               ),
@@ -167,12 +152,12 @@ class TicketCard extends StatelessWidget {
             ),
             if (ticket.description.isNotEmpty) ...[
               const SizedBox(height: 12),
-              const Divider(color: Color(0xFF2B3150), height: 1.0),
+              const Divider(color: AppTheme.borderDividerColor, height: 1.0),
               const SizedBox(height: 12),
               Text(
                 ticket.description,
                 style: const TextStyle(
-                  color: Color(0xFF8C92AE),
+                  color: AppTheme.textSecondaryColor,
                   fontSize: 13,
                   fontFamily: 'Inter',
                   height: 1.5,
@@ -188,7 +173,7 @@ class TicketCard extends StatelessWidget {
                 child: Text(
                   ticket.createdAt.split('T')[0],
                   style: const TextStyle(
-                    color: Color(0xFF5C6280),
+                    color: AppTheme.textTertiaryColor,
                     fontSize: 10,
                     fontFamily: 'Inter',
                   ),

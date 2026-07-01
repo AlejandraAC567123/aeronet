@@ -3,8 +3,10 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:aeronet_app_flutter/data/models/invoice_model.dart';
 import 'package:aeronet_app_flutter/shared/widgets/glass_container.dart';
 import 'package:aeronet_app_flutter/core/utils/helpers.dart';
-import 'package:aeronet_app_flutter/shared/extensions/string_extensions.dart';
 import 'package:aeronet_app_flutter/data/services/documents_service.dart';
+import 'package:aeronet_app_flutter/shared/extensions/string_extensions.dart';
+import 'package:aeronet_app_flutter/shared/widgets/status_badge.dart';
+import 'package:aeronet_app_flutter/core/theme/app_theme.dart';
 
 class AdminInvoiceCard extends StatefulWidget {
   final InvoiceModel invoice;
@@ -71,10 +73,13 @@ class _AdminInvoiceCardState extends State<AdminInvoiceCard> {
     final invoice = widget.invoice;
     final isPaid = _isPaidOrInvoiced;
     final isOverdue = invoice.status.toLowerCase() == 'overdue';
-    
-    Color statusColor = const Color(0xFF2DD4BF); // Teal
-    if (!isPaid) {
-      statusColor = isOverdue ? Colors.redAccent : Colors.orangeAccent;
+    StatusType statusType;
+    if (isPaid) {
+      statusType = StatusType.active;
+    } else if (isOverdue) {
+      statusType = StatusType.error;
+    } else {
+      statusType = StatusType.pending;
     }
 
     return Padding(
@@ -89,25 +94,14 @@ class _AdminInvoiceCardState extends State<AdminInvoiceCard> {
                 Text(
                   'Factura #${shortId(invoice.id)}',
                   style: const TextStyle(
-                    color: Colors.white,
+                    color: AppTheme.textPrimaryColor,
                     fontWeight: FontWeight.bold,
                     fontSize: 15,
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: statusColor.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    invoice.status.cleanStatus(),
-                    style: TextStyle(
-                      color: statusColor,
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                StatusBadge(
+                  label: invoice.status.cleanStatus().toUpperCase(),
+                  type: statusType,
                 ),
               ],
             ),
@@ -118,23 +112,23 @@ class _AdminInvoiceCardState extends State<AdminInvoiceCard> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Cliente', style: TextStyle(color: Colors.white60, fontSize: 12)),
+                    const Text('Cliente', style: TextStyle(color: AppTheme.textSecondaryColor, fontSize: 12)),
                     const SizedBox(height: 4),
                     Text(
                       invoice.customerName ?? invoice.customerId,
-                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 13),
+                      style: const TextStyle(color: AppTheme.textPrimaryColor, fontWeight: FontWeight.w500, fontSize: 13),
                     ),
                   ],
                 ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    const Text('Monto', style: TextStyle(color: Colors.white60, fontSize: 12)),
+                    const Text('Monto', style: TextStyle(color: AppTheme.textSecondaryColor, fontSize: 12)),
                     const SizedBox(height: 4),
                     Text(
                       money(invoice.amount),
                       style: const TextStyle(
-                        color: Colors.white,
+                        color: AppTheme.textPrimaryColor,
                         fontWeight: FontWeight.w900,
                         fontSize: 16,
                       ),
@@ -146,15 +140,16 @@ class _AdminInvoiceCardState extends State<AdminInvoiceCard> {
             
             if (isPaid) ...[
               const SizedBox(height: 16),
-              const Divider(color: Colors.white10),
+              const Divider(color: AppTheme.borderDividerColor),
+              const SizedBox(height: 8),
               const SizedBox(height: 8),
               if (!_documentsLoaded && !_loadingDocuments)
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton.icon(
                     style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Color(0xFF4FE6C4)),
-                      foregroundColor: const Color(0xFF4FE6C4),
+                      side: const BorderSide(color: AppTheme.accentColor),
+                      foregroundColor: AppTheme.accentColor,
                     ),
                     onPressed: _loadDocuments,
                     icon: const Icon(Icons.picture_as_pdf, size: 16),
@@ -168,7 +163,7 @@ class _AdminInvoiceCardState extends State<AdminInvoiceCard> {
                     height: 20,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF4FE6C4)),
+                      valueColor: AlwaysStoppedAnimation<Color>(AppTheme.accentColor),
                     ),
                   ),
                 )
@@ -187,8 +182,8 @@ class _AdminInvoiceCardState extends State<AdminInvoiceCard> {
                       width: double.infinity,
                       child: FilledButton.icon(
                         style: FilledButton.styleFrom(
-                          backgroundColor: const Color(0xFF4FE6C4).withValues(alpha: 0.2),
-                          foregroundColor: const Color(0xFF4FE6C4),
+                          backgroundColor: AppTheme.accentColor.withValues(alpha: 0.2),
+                          foregroundColor: AppTheme.accentColor,
                         ),
                         onPressed: () => _downloadPdf(pdfUrl),
                         icon: const Icon(Icons.download, size: 16),
@@ -199,7 +194,7 @@ class _AdminInvoiceCardState extends State<AdminInvoiceCard> {
                 })
               else
                 const Center(
-                  child: Text('No hay comprobantes disponibles', style: TextStyle(color: Colors.white60, fontSize: 12)),
+                  child: Text('No hay comprobantes disponibles', style: TextStyle(color: AppTheme.textSecondaryColor, fontSize: 12)),
                 ),
             ]
           ],

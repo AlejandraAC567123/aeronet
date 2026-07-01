@@ -5,6 +5,8 @@ import 'package:aeronet_app_flutter/shared/widgets/glass_container.dart';
 import 'package:aeronet_app_flutter/core/utils/helpers.dart';
 import 'package:aeronet_app_flutter/shared/extensions/string_extensions.dart';
 import 'package:aeronet_app_flutter/data/services/documents_service.dart';
+import 'package:aeronet_app_flutter/shared/widgets/status_badge.dart';
+import 'package:aeronet_app_flutter/core/theme/app_theme.dart';
 
 class InvoiceCard extends StatefulWidget {
   const InvoiceCard({
@@ -79,16 +81,16 @@ class _InvoiceCardState extends State<InvoiceCard> {
     }
   }
 
-  Color _getStatusColor(String status) {
+  StatusType _getStatusType(String status) {
     switch (status.toLowerCase()) {
       case 'paid':
       case 'approved':
       case 'invoiced':
-        return const Color(0xFF2DD4BF); // Teal
+        return StatusType.active;
       case 'overdue':
-        return Colors.redAccent; // Rojo
+        return StatusType.error;
       default:
-        return Colors.orangeAccent; // Naranja
+        return StatusType.pending;
     }
   }
 
@@ -98,7 +100,7 @@ class _InvoiceCardState extends State<InvoiceCard> {
     final isPending = invoice.status.toLowerCase() == 'pending';
     final isPaid = _isPaidOrInvoiced;
     final isOverdue = invoice.status.toLowerCase() == 'overdue';
-    final statusColor = _getStatusColor(invoice.status);
+    final statusType = _getStatusType(invoice.status);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
@@ -116,25 +118,14 @@ class _InvoiceCardState extends State<InvoiceCard> {
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: AppTheme.textPrimaryColor,
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: statusColor.withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    invoice.status.cleanStatus(),
-                    style: TextStyle(
-                      color: statusColor,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                StatusBadge(
+                  label: invoice.status.cleanStatus().toUpperCase(),
+                  type: statusType,
                 ),
               ],
             ),
@@ -149,14 +140,14 @@ class _InvoiceCardState extends State<InvoiceCard> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text('Monto Total',
-                          style: TextStyle(color: Colors.white60, fontSize: 13)),
+                          style: TextStyle(color: AppTheme.textSecondaryColor, fontSize: 13)),
                       const SizedBox(height: 4),
                       Text(
                         money(invoice.amount),
                         style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w800,
-                          color: Colors.white,
+                          color: AppTheme.textPrimaryColor,
                         ),
                       ),
                     ],
@@ -168,12 +159,12 @@ class _InvoiceCardState extends State<InvoiceCard> {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         const Text('Vencimiento',
-                            style: TextStyle(color: Colors.white60, fontSize: 13)),
+                            style: TextStyle(color: AppTheme.textSecondaryColor, fontSize: 13)),
                         const SizedBox(height: 4),
                         Text(
                           invoice.dueDate!.split('T')[0],
                           style: const TextStyle(
-                            color: Colors.white,
+                            color: AppTheme.textPrimaryColor,
                             fontWeight: FontWeight.bold,
                           ),
                           overflow: TextOverflow.ellipsis,
@@ -187,7 +178,7 @@ class _InvoiceCardState extends State<InvoiceCard> {
             // BOTONES
             if (isPending) ...[
               const SizedBox(height: 16),
-              const Divider(color: Colors.white10),
+              const Divider(color: AppTheme.borderDividerColor),
               const SizedBox(height: 8),
               SizedBox(
                 width: double.infinity,
@@ -205,7 +196,7 @@ class _InvoiceCardState extends State<InvoiceCard> {
                           dimension: 16,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            color: Colors.white,
+                            color: AppTheme.textPrimaryColor,
                           ),
                         )
                       : const Icon(Icons.payment_outlined, size: 16),
@@ -217,8 +208,8 @@ class _InvoiceCardState extends State<InvoiceCard> {
               Center(
                 child: Text(
                   '✓ Pagado',
-                  style: TextStyle(
-                    color: statusColor,
+                  style: const TextStyle(
+                    color: AppTheme.accentColor,
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
                   ),
@@ -228,7 +219,7 @@ class _InvoiceCardState extends State<InvoiceCard> {
               // Lista de comprobantes
               if (_documents.isNotEmpty) ...[
                 const SizedBox(height: 12),
-                const Divider(color: Colors.white10),
+                const Divider(color: AppTheme.borderDividerColor),
                 const SizedBox(height: 8),
                 ..._documents.where((doc) {
                   final pdfUrl = DocumentsService.instance.getPdfUrl(doc);
@@ -244,8 +235,8 @@ class _InvoiceCardState extends State<InvoiceCard> {
                       width: double.infinity,
                       child: OutlinedButton.icon(
                         style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: Color(0xFF4FE6C4)),
-                          foregroundColor: const Color(0xFF4FE6C4),
+                          side: const BorderSide(color: AppTheme.accentColor),
+                          foregroundColor: AppTheme.accentColor,
                         ),
                         onPressed: () => _downloadPdf(pdfUrl),
                         icon: const Icon(Icons.download, size: 16),
@@ -262,14 +253,14 @@ class _InvoiceCardState extends State<InvoiceCard> {
                     height: 20,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF4FE6C4)),
+                      valueColor: AlwaysStoppedAnimation<Color>(AppTheme.accentColor),
                     ),
                   ),
                 ),
               ],
             ] else if (isOverdue) ...[
               const SizedBox(height: 16),
-              const Divider(color: Colors.white10),
+              const Divider(color: AppTheme.borderDividerColor),
               const SizedBox(height: 8),
               SizedBox(
                 width: double.infinity,
@@ -287,7 +278,7 @@ class _InvoiceCardState extends State<InvoiceCard> {
                           dimension: 16,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            color: Colors.white,
+                            color: AppTheme.textPrimaryColor,
                           ),
                         )
                       : const Icon(Icons.payment_outlined, size: 16),

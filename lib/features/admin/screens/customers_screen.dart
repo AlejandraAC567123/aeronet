@@ -10,6 +10,7 @@ import 'package:aeronet_app_flutter/data/models/customer_model.dart';
 import 'package:aeronet_app_flutter/core/utils/helpers.dart';
 import 'package:aeronet_app_flutter/core/routes/app_routes.dart';
 import 'package:aeronet_app_flutter/features/auth/providers/auth_provider.dart';
+import 'package:aeronet_app_flutter/core/theme/app_theme.dart';
 
 class CustomersScreen extends StatefulWidget {
   final Widget? drawer;
@@ -37,8 +38,8 @@ class _CustomersScreenState extends State<CustomersScreen> {
       context: context,
       builder: (ctx) {
         return AlertDialog(
-          backgroundColor: const Color(0xFF1E293B),
-          title: Text(isEdit ? 'Editar Cliente' : 'Nuevo Cliente', style: const TextStyle(color: Colors.white)),
+          backgroundColor: AppTheme.cardColor,
+          title: Text(isEdit ? 'Editar Cliente' : 'Nuevo Cliente', style: const TextStyle(color: AppTheme.textPrimaryColor)),
           content: Form(
             key: formKey,
             child: SingleChildScrollView(
@@ -49,21 +50,21 @@ class _CustomersScreenState extends State<CustomersScreen> {
                     TextFormField(
                       controller: nameController,
                       decoration: const InputDecoration(labelText: 'Nombre completo'),
-                      style: const TextStyle(color: Colors.white),
+                      style: const TextStyle(color: AppTheme.textPrimaryColor),
                       validator: (v) => v == null || v.trim().isEmpty ? 'Ingresa el nombre' : null,
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
                       controller: emailController,
                       decoration: const InputDecoration(labelText: 'Correo electrónico'),
-                      style: const TextStyle(color: Colors.white),
+                      style: const TextStyle(color: AppTheme.textPrimaryColor),
                       validator: (v) => v == null || v.trim().isEmpty ? 'Ingresa el correo' : null,
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
                       controller: passwordController,
                       decoration: const InputDecoration(labelText: 'Contraseña'),
-                      style: const TextStyle(color: Colors.white),
+                      style: const TextStyle(color: AppTheme.textPrimaryColor),
                       obscureText: true,
                       validator: (v) => v == null || v.length < 6 ? 'Mínimo 6 caracteres' : null,
                     ),
@@ -71,19 +72,19 @@ class _CustomersScreenState extends State<CustomersScreen> {
                     TextFormField(
                       controller: nameController,
                       decoration: const InputDecoration(labelText: 'Nombre completo'),
-                      style: const TextStyle(color: Colors.white),
+                      style: const TextStyle(color: AppTheme.textPrimaryColor),
                       validator: (v) => v == null || v.trim().isEmpty ? 'Ingresa el nombre' : null,
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
                       controller: phoneController,
                       decoration: const InputDecoration(labelText: 'Teléfono'),
-                      style: const TextStyle(color: Colors.white),
+                      style: const TextStyle(color: AppTheme.textPrimaryColor),
                     ),
                     const SizedBox(height: 12),
                     DropdownButtonFormField<String>(
                       value: docType,
-                      dropdownColor: const Color(0xFF1E293B),
+                      dropdownColor: AppTheme.cardColor,
                       decoration: const InputDecoration(labelText: 'Tipo de documento'),
                       items: ['DNI', 'RUC', 'PASAPORTE', 'CE'].map((t) {
                         return DropdownMenuItem(value: t, child: Text(t));
@@ -96,20 +97,20 @@ class _CustomersScreenState extends State<CustomersScreen> {
                     TextFormField(
                       controller: docNumController,
                       decoration: const InputDecoration(labelText: 'Nro de documento'),
-                      style: const TextStyle(color: Colors.white),
+                      style: const TextStyle(color: AppTheme.textPrimaryColor),
                       validator: (v) => v == null || v.trim().isEmpty ? 'Ingresa el nro de documento' : null,
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
                       controller: addressController,
                       decoration: const InputDecoration(labelText: 'Dirección'),
-                      style: const TextStyle(color: Colors.white),
+                      style: const TextStyle(color: AppTheme.textPrimaryColor),
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
                       controller: cityController,
                       decoration: const InputDecoration(labelText: 'Ciudad'),
-                      style: const TextStyle(color: Colors.white),
+                      style: const TextStyle(color: AppTheme.textPrimaryColor),
                     ),
                   ]
                 ],
@@ -119,7 +120,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(),
-              child: const Text('Cancelar', style: TextStyle(color: Colors.white60)),
+              child: const Text('Cancelar', style: TextStyle(color: AppTheme.textSecondaryColor)),
             ),
             FilledButton(
               onPressed: () async {
@@ -163,16 +164,16 @@ class _CustomersScreenState extends State<CustomersScreen> {
       context: context,
       builder: (ctx) {
         return AlertDialog(
-          backgroundColor: const Color(0xFF1E293B),
-          title: const Text('Eliminar Cliente', style: TextStyle(color: Colors.white)),
-          content: const Text('¿Estás seguro de eliminar este cliente? Esta acción no se puede deshacer.', style: TextStyle(color: Colors.white70)),
+          backgroundColor: AppTheme.cardColor,
+          title: const Text('Eliminar Cliente', style: TextStyle(color: AppTheme.textPrimaryColor)),
+          content: const Text('¿Estás seguro de eliminar este cliente? Esta acción no se puede deshacer.', style: TextStyle(color: AppTheme.textSecondaryColor)),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(),
-              child: const Text('Cancelar', style: TextStyle(color: Colors.white60)),
+              child: const Text('Cancelar', style: TextStyle(color: AppTheme.textSecondaryColor)),
             ),
             FilledButton(
-              style: FilledButton.styleFrom(backgroundColor: Colors.redAccent),
+              style: FilledButton.styleFrom(backgroundColor: AppTheme.errorColor),
               onPressed: () async {
                 try {
                   await provider.deleteCustomer(id);
@@ -218,12 +219,12 @@ class _CustomersScreenState extends State<CustomersScreen> {
       actions: [
         IconButton(
           tooltip: 'Nuevo Cliente',
-          icon: const Icon(Icons.person_add_alt_1_outlined, color: Color(0xFF2DD4BF)),
+          icon: const Icon(Icons.person_add_alt_1_outlined, color: AppTheme.accentColor),
           onPressed: () => _showFormDialog(context, adminProvider),
         ),
         IconButton(
           tooltip: 'Cerrar Sesión',
-          icon: const Icon(Icons.logout_outlined, color: Colors.redAccent),
+          icon: const Icon(Icons.logout_outlined, color: AppTheme.errorColor),
           onPressed: () async {
             await authProvider.logout();
             if (context.mounted) {

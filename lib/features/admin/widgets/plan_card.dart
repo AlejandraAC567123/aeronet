@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:aeronet_app_flutter/data/models/plan_model.dart';
 import 'package:aeronet_app_flutter/shared/widgets/glass_container.dart';
 import 'package:aeronet_app_flutter/core/utils/helpers.dart';
+import 'package:aeronet_app_flutter/core/theme/app_theme.dart';
 
 class PlanCard extends StatelessWidget {
   const PlanCard({
@@ -31,7 +32,7 @@ class PlanCard extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: AppTheme.textPrimaryColor,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -41,14 +42,14 @@ class PlanCard extends StatelessWidget {
                     'Velocidad: ${plan.speedMbps} Mbps',
                     style: const TextStyle(
                       fontSize: 13,
-                      color: Colors.white70,
+                      color: AppTheme.textSecondaryColor,
                     ),
                   ),
                   if (plan.description.isNotEmpty) ...[
                     const SizedBox(height: 4),
                     Text(
                       plan.description,
-                      style: const TextStyle(fontSize: 12, color: Colors.white38),
+                      style: const TextStyle(fontSize: 12, color: AppTheme.textTertiaryColor),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -57,13 +58,13 @@ class PlanCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF2DD4BF).withOpacity(0.1),
+                      color: AppTheme.accentColor.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
                       money(plan.price),
                       style: const TextStyle(
-                        color: Color(0xFF2DD4BF),
+                        color: AppTheme.accentColor,
                         fontWeight: FontWeight.bold,
                         fontSize: 13,
                       ),
@@ -77,11 +78,11 @@ class PlanCard extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 IconButton(
-                  icon: const Icon(Icons.edit_outlined, color: Colors.white60, size: 20),
+                  icon: const Icon(Icons.edit_outlined, color: AppTheme.textSecondaryColor, size: 20),
                   onPressed: onEdit,
                 ),
                 IconButton(
-                  icon: const Icon(Icons.delete_outline, color: Colors.redAccent, size: 20),
+                  icon: const Icon(Icons.delete_outline, color: AppTheme.errorColor, size: 20),
                   onPressed: onDelete,
                 ),
               ],

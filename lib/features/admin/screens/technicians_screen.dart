@@ -9,6 +9,7 @@ import 'package:aeronet_app_flutter/shared/widgets/glass_container.dart';
 import 'package:aeronet_app_flutter/data/models/technician_model.dart';
 import 'package:aeronet_app_flutter/core/utils/helpers.dart';
 import 'package:aeronet_app_flutter/shared/extensions/string_extensions.dart';
+import 'package:aeronet_app_flutter/core/theme/app_theme.dart';
  
 class TechniciansScreen extends StatefulWidget {
   final Widget? drawer;
@@ -40,8 +41,8 @@ class _TechniciansScreenState extends State<TechniciansScreen> {
       context: context,
       builder: (ctx) {
         return AlertDialog(
-          backgroundColor: const Color(0xFF1E293B),
-          title: Text(isEdit ? 'Editar Técnico' : 'Nuevo Técnico', style: const TextStyle(color: Colors.white)),
+          backgroundColor: AppTheme.cardColor,
+          title: Text(isEdit ? 'Editar Técnico' : 'Nuevo Técnico', style: const TextStyle(color: AppTheme.textPrimaryColor)),
           content: Form(
             key: formKey,
             child: SingleChildScrollView(
@@ -51,7 +52,7 @@ class _TechniciansScreenState extends State<TechniciansScreen> {
                   TextFormField(
                     controller: nameController,
                     decoration: const InputDecoration(labelText: 'Nombre completo'),
-                    style: const TextStyle(color: Colors.white),
+                    style: const TextStyle(color: AppTheme.textPrimaryColor),
                     validator: (v) => v == null || v.trim().isEmpty ? 'Ingresa el nombre' : null,
                   ),
                   const SizedBox(height: 12),
@@ -59,14 +60,14 @@ class _TechniciansScreenState extends State<TechniciansScreen> {
                     TextFormField(
                       controller: emailController,
                       decoration: const InputDecoration(labelText: 'Correo electrónico'),
-                      style: const TextStyle(color: Colors.white),
+                      style: const TextStyle(color: AppTheme.textPrimaryColor),
                       validator: (v) => v == null || v.trim().isEmpty ? 'Ingresa el correo' : null,
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
                       controller: passwordController,
                       decoration: const InputDecoration(labelText: 'Contraseña'),
-                      style: const TextStyle(color: Colors.white),
+                      style: const TextStyle(color: AppTheme.textPrimaryColor),
                       obscureText: true,
                       validator: (v) => v == null || v.length < 6 ? 'Mínimo 6 caracteres' : null,
                     ),
@@ -75,21 +76,21 @@ class _TechniciansScreenState extends State<TechniciansScreen> {
                   TextFormField(
                     controller: phoneController,
                     decoration: const InputDecoration(labelText: 'Teléfono'),
-                    style: const TextStyle(color: Colors.white),
+                    style: const TextStyle(color: AppTheme.textPrimaryColor),
                     validator: (v) => v == null || v.trim().isEmpty ? 'Ingresa el teléfono' : null,
                   ),
                   const SizedBox(height: 12),
                   TextFormField(
                     controller: docNumController,
                     decoration: const InputDecoration(labelText: 'Nro de documento'),
-                    style: const TextStyle(color: Colors.white),
+                    style: const TextStyle(color: AppTheme.textPrimaryColor),
                   ),
                   const SizedBox(height: 12),
                   DropdownButtonFormField<String>(
                     value: selectedSpecialization,
-                    dropdownColor: const Color(0xFF1E293B),
+                    dropdownColor: AppTheme.cardColor,
                     decoration: const InputDecoration(labelText: 'Especialidad'),
-                    style: const TextStyle(color: Colors.white),
+                    style: const TextStyle(color: AppTheme.textPrimaryColor),
                     items: validSpecialties.map((spec) {
                       return DropdownMenuItem(value: spec, child: Text(spec));
                     }).toList(),
@@ -104,7 +105,7 @@ class _TechniciansScreenState extends State<TechniciansScreen> {
                     const SizedBox(height: 12),
                     DropdownButtonFormField<String>(
                       value: status,
-                      dropdownColor: const Color(0xFF1E293B),
+                      dropdownColor: AppTheme.cardColor,
                       decoration: const InputDecoration(labelText: 'Estado'),
                       items: ['active', 'inactive', 'on_leave'].map((st) {
                         return DropdownMenuItem(value: st, child: Text(st.cleanStatus()));
@@ -121,7 +122,7 @@ class _TechniciansScreenState extends State<TechniciansScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(),
-              child: const Text('Cancelar', style: TextStyle(color: Colors.white60)),
+              child: const Text('Cancelar', style: TextStyle(color: AppTheme.textSecondaryColor)),
             ),
             FilledButton(
               onPressed: () async {
@@ -164,16 +165,16 @@ class _TechniciansScreenState extends State<TechniciansScreen> {
       context: context,
       builder: (ctx) {
         return AlertDialog(
-          backgroundColor: const Color(0xFF1E293B),
-          title: const Text('Eliminar Técnico', style: TextStyle(color: Colors.white)),
-          content: const Text('¿Estás seguro de eliminar este técnico?', style: TextStyle(color: Colors.white70)),
+          backgroundColor: AppTheme.cardColor,
+          title: const Text('Eliminar Técnico', style: TextStyle(color: AppTheme.textPrimaryColor)),
+          content: const Text('¿Estás seguro de eliminar este técnico?', style: TextStyle(color: AppTheme.textSecondaryColor)),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(),
-              child: const Text('Cancelar', style: TextStyle(color: Colors.white60)),
+              child: const Text('Cancelar', style: TextStyle(color: AppTheme.textSecondaryColor)),
             ),
             FilledButton(
-              style: FilledButton.styleFrom(backgroundColor: Colors.redAccent),
+              style: FilledButton.styleFrom(backgroundColor: AppTheme.errorColor),
               onPressed: () async {
                 try {
                   await provider.deleteTechnician(id);
@@ -218,7 +219,7 @@ class _TechniciansScreenState extends State<TechniciansScreen> {
       actions: [
         IconButton(
           tooltip: 'Nuevo Técnico',
-          icon: const Icon(Icons.person_add_outlined, color: Color(0xFF2DD4BF)),
+          icon: const Icon(Icons.person_add_outlined, color: AppTheme.accentColor),
           onPressed: () => _showFormDialog(context, adminProvider),
         ),
       ],
@@ -252,11 +253,11 @@ class _TechniciansScreenState extends State<TechniciansScreen> {
               itemBuilder: (context, index) {
                 final tech = adminProvider.technicians[index];
                 
-                Color statusColor = const Color(0xFF2DD4BF); // Active
+                Color statusColor = AppTheme.accentColor; // Active
                 if (tech.status == 'inactive') {
-                  statusColor = Colors.redAccent;
+                  statusColor = AppTheme.errorColor;
                 } else if (tech.status == 'on_leave') {
-                  statusColor = Colors.orangeAccent;
+                  statusColor = AppTheme.alertColor;
                 }
  
                 return Padding(
@@ -268,10 +269,10 @@ class _TechniciansScreenState extends State<TechniciansScreen> {
                         Container(
                           padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF2DD4BF).withOpacity(0.1),
+                            color: AppTheme.accentColor.withOpacity(0.1),
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(Icons.engineering, color: Color(0xFF2DD4BF), size: 24),
+                          child: const Icon(Icons.engineering, color: AppTheme.accentColor, size: 24),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
@@ -281,25 +282,25 @@ class _TechniciansScreenState extends State<TechniciansScreen> {
                               Text(
                                 tech.fullName,
                                 style: const TextStyle(
-                                  color: Colors.white,
+                                  color: AppTheme.textPrimaryColor,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 15,
                                 ),
                               ),
                               Text(
                                 tech.email,
-                                style: const TextStyle(color: Colors.white60, fontSize: 13),
+                                style: const TextStyle(color: AppTheme.textSecondaryColor, fontSize: 13),
                               ),
                               const SizedBox(height: 6),
                               Row(
                                 children: [
-                                  const Icon(Icons.phone_outlined, size: 14, color: Colors.white38),
+                                  const Icon(Icons.phone_outlined, size: 14, color: AppTheme.textTertiaryColor),
                                   const SizedBox(width: 4),
-                                  Text(tech.phone, style: const TextStyle(color: Colors.white70, fontSize: 12)),
+                                  Text(tech.phone, style: const TextStyle(color: AppTheme.textSecondaryColor, fontSize: 12)),
                                   const SizedBox(width: 12),
-                                  const Icon(Icons.workspace_premium_outlined, size: 14, color: Colors.white38),
+                                  const Icon(Icons.workspace_premium_outlined, size: 14, color: AppTheme.textTertiaryColor),
                                   const SizedBox(width: 4),
-                                  Text(tech.specialization, style: const TextStyle(color: Colors.white70, fontSize: 12)),
+                                  Text(tech.specialization, style: const TextStyle(color: AppTheme.textSecondaryColor, fontSize: 12)),
                                 ],
                               ),
                               const SizedBox(height: 6),
@@ -325,11 +326,11 @@ class _TechniciansScreenState extends State<TechniciansScreen> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             IconButton(
-                              icon: const Icon(Icons.edit_outlined, color: Colors.white60, size: 20),
+                              icon: const Icon(Icons.edit_outlined, color: AppTheme.textSecondaryColor, size: 20),
                               onPressed: () => _showFormDialog(context, adminProvider, tech),
                             ),
                             IconButton(
-                              icon: const Icon(Icons.delete_outline, color: Colors.redAccent, size: 20),
+                              icon: const Icon(Icons.delete_outline, color: AppTheme.errorColor, size: 20),
                               onPressed: () => _confirmDelete(context, adminProvider, tech.id),
                             ),
                           ],

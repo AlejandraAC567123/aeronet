@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:aeronet_app_flutter/shared/widgets/glass_container.dart';
+import 'package:aeronet_app_flutter/shared/widgets/icon_container.dart';
+import 'package:aeronet_app_flutter/core/theme/app_theme.dart';
 
 class StatCard extends StatelessWidget {
   const StatCard({
@@ -17,18 +19,16 @@ class StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final themeColor = color ?? const Color(0xFF2DD4BF);
+    final themeColor = color ?? AppTheme.accentColor;
 
     return GlassContainer(
       child: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: themeColor.withOpacity(0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, color: themeColor, size: 24),
+          IconContainer(
+            icon: icon,
+            color: themeColor,
+            size: 24,
+            padding: 10,
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -41,13 +41,13 @@ class StatCard extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: AppTheme.textPrimaryColor,
                   ),
                 ),
                 Text(
                   label,
                   style: const TextStyle(
-                    color: Colors.white60,
+                    color: AppTheme.textSecondaryColor,
                     fontSize: 12,
                   ),
                   maxLines: 1,

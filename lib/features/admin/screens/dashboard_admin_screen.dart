@@ -8,6 +8,7 @@ import 'package:aeronet_app_flutter/shared/widgets/empty_state.dart';
 import 'package:aeronet_app_flutter/shared/widgets/glass_container.dart';
 import 'package:aeronet_app_flutter/features/admin/widgets/stat_card.dart';
 import 'package:aeronet_app_flutter/core/utils/helpers.dart';
+import 'package:aeronet_app_flutter/core/theme/app_theme.dart';
 
 class DashboardAdminScreen extends StatefulWidget {
   final Widget? drawer;
@@ -87,19 +88,19 @@ class _DashboardAdminScreenState extends State<DashboardAdminScreen> {
                               label: 'Servicios Activos',
                               value: '${adminProvider.totalActiveServices}',
                               icon: Icons.wifi_tethering,
-                              color: const Color(0xFF2DD4BF),
+                              color: AppTheme.accentColor,
                             ),
                             StatCard(
                               label: 'Tickets Pendientes',
                               value: '${adminProvider.totalPendingTickets}',
                               icon: Icons.support_agent_outlined,
-                              color: Colors.orangeAccent,
+                              color: AppTheme.alertColor,
                             ),
                             StatCard(
                               label: 'Por Cobrar',
                               value: money(adminProvider.totalOutstandingAmount),
                               icon: Icons.account_balance_wallet_outlined,
-                              color: Colors.redAccent,
+                              color: AppTheme.errorColor,
                             ),
                           ],
                         ),
@@ -109,7 +110,7 @@ class _DashboardAdminScreenState extends State<DashboardAdminScreen> {
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            color: AppTheme.textPrimaryColor,
                           ),
                         ),
                         const SizedBox(height: 16),
@@ -159,7 +160,7 @@ class _DashboardAdminScreenState extends State<DashboardAdminScreen> {
                       Text(
                         payment.customerName ?? 'Cliente',
                         style: const TextStyle(
-                          color: Colors.white,
+                          color: AppTheme.textPrimaryColor,
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
                         ),
@@ -167,7 +168,7 @@ class _DashboardAdminScreenState extends State<DashboardAdminScreen> {
                       const SizedBox(height: 4),
                       Text(
                         'Método: ${payment.displayMethod}',
-                        style: const TextStyle(color: Colors.white70),
+                        style: const TextStyle(color: AppTheme.textSecondaryColor),
                       ),
                     ],
                   ),
@@ -178,7 +179,7 @@ class _DashboardAdminScreenState extends State<DashboardAdminScreen> {
                     Text(
                       money(payment.amountReceived),
                       style: const TextStyle(
-                        color: Color(0xFF2DD4BF),
+                        color: AppTheme.accentColor,
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                       ),
@@ -186,7 +187,7 @@ class _DashboardAdminScreenState extends State<DashboardAdminScreen> {
                     const SizedBox(height: 4),
                     Text(
                       displayDate,
-                      style: const TextStyle(color: Colors.white54, fontSize: 12),
+                      style: const TextStyle(color: AppTheme.textSecondaryColor, fontSize: 12),
                     ),
                   ],
                 ),

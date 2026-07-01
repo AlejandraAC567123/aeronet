@@ -8,6 +8,7 @@ import 'package:aeronet_app_flutter/shared/widgets/empty_state.dart';
 import 'package:aeronet_app_flutter/features/admin/widgets/plan_card.dart';
 import 'package:aeronet_app_flutter/data/models/plan_model.dart';
 import 'package:aeronet_app_flutter/core/utils/helpers.dart';
+import 'package:aeronet_app_flutter/core/theme/app_theme.dart';
 
 class PlansScreen extends StatefulWidget {
   final Widget? drawer;
@@ -31,8 +32,8 @@ class _PlansScreenState extends State<PlansScreen> {
       context: context,
       builder: (ctx) {
         return AlertDialog(
-          backgroundColor: const Color(0xFF1E293B),
-          title: Text(isEdit ? 'Editar Plan' : 'Nuevo Plan', style: const TextStyle(color: Colors.white)),
+          backgroundColor: AppTheme.cardColor,
+          title: Text(isEdit ? 'Editar Plan' : 'Nuevo Plan', style: const TextStyle(color: AppTheme.textPrimaryColor)),
           content: Form(
             key: formKey,
             child: SingleChildScrollView(
@@ -42,14 +43,14 @@ class _PlansScreenState extends State<PlansScreen> {
                   TextFormField(
                     controller: nameController,
                     decoration: const InputDecoration(labelText: 'Nombre del plan'),
-                    style: const TextStyle(color: Colors.white),
+                    style: const TextStyle(color: AppTheme.textPrimaryColor),
                     validator: (v) => v == null || v.trim().isEmpty ? 'Ingresa el nombre' : null,
                   ),
                   const SizedBox(height: 12),
                   TextFormField(
                     controller: speedController,
                     decoration: const InputDecoration(labelText: 'Velocidad (Mbps)'),
-                    style: const TextStyle(color: Colors.white),
+                    style: const TextStyle(color: AppTheme.textPrimaryColor),
                     keyboardType: TextInputType.number,
                     validator: (v) => int.tryParse(v ?? '') == null ? 'Ingresa un número entero' : null,
                   ),
@@ -57,7 +58,7 @@ class _PlansScreenState extends State<PlansScreen> {
                   TextFormField(
                     controller: priceController,
                     decoration: const InputDecoration(labelText: 'Precio (S/.)'),
-                    style: const TextStyle(color: Colors.white),
+                    style: const TextStyle(color: AppTheme.textPrimaryColor),
                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
                     validator: (v) => double.tryParse(v ?? '') == null ? 'Ingresa un precio decimal' : null,
                   ),
@@ -65,7 +66,7 @@ class _PlansScreenState extends State<PlansScreen> {
                   TextFormField(
                     controller: descController,
                     decoration: const InputDecoration(labelText: 'Descripción'),
-                    style: const TextStyle(color: Colors.white),
+                    style: const TextStyle(color: AppTheme.textPrimaryColor),
                     maxLines: 2,
                   ),
                 ],
@@ -75,7 +76,7 @@ class _PlansScreenState extends State<PlansScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(),
-              child: const Text('Cancelar', style: TextStyle(color: Colors.white60)),
+              child: const Text('Cancelar', style: TextStyle(color: AppTheme.textSecondaryColor)),
             ),
             FilledButton(
               onPressed: () async {
@@ -111,16 +112,16 @@ class _PlansScreenState extends State<PlansScreen> {
       context: context,
       builder: (ctx) {
         return AlertDialog(
-          backgroundColor: const Color(0xFF1E293B),
-          title: const Text('Eliminar Plan', style: TextStyle(color: Colors.white)),
-          content: const Text('¿Estás seguro de eliminar este plan? Esto podría afectar a los clientes suscritos.', style: TextStyle(color: Colors.white70)),
+          backgroundColor: AppTheme.cardColor,
+          title: const Text('Eliminar Plan', style: TextStyle(color: AppTheme.textPrimaryColor)),
+          content: const Text('¿Estás seguro de eliminar este plan? Esto podría afectar a los clientes suscritos.', style: TextStyle(color: AppTheme.textSecondaryColor)),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(),
-              child: const Text('Cancelar', style: TextStyle(color: Colors.white60)),
+              child: const Text('Cancelar', style: TextStyle(color: AppTheme.textSecondaryColor)),
             ),
             FilledButton(
-              style: FilledButton.styleFrom(backgroundColor: Colors.redAccent),
+              style: FilledButton.styleFrom(backgroundColor: AppTheme.errorColor),
               onPressed: () async {
                 try {
                   await provider.deletePlan(id);
@@ -165,7 +166,7 @@ class _PlansScreenState extends State<PlansScreen> {
       actions: [
         IconButton(
           tooltip: 'Nuevo Plan',
-          icon: const Icon(Icons.add_circle_outline, color: Color(0xFF2DD4BF)),
+          icon: const Icon(Icons.add_circle_outline, color: AppTheme.accentColor),
           onPressed: () => _showFormDialog(context, adminProvider),
         ),
       ],

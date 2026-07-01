@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:aeronet_app_flutter/core/theme/app_theme.dart';
 
 class AppPage extends StatelessWidget {
   const AppPage({
@@ -32,7 +33,7 @@ class AppPage extends StatelessWidget {
               style: const TextStyle(
                 fontFamily: 'Plus Jakarta Sans',
                 fontWeight: FontWeight.w800,
-                color: Color(0xFFF2F4FA),
+                color: AppTheme.textPrimaryColor,
                 fontSize: 22,
                 letterSpacing: 0.5,
               ),
@@ -42,7 +43,7 @@ class AppPage extends StatelessWidget {
                 subtitle,
                 style: const TextStyle(
                   fontFamily: 'Inter',
-                  color: Color(0xFF8C92AE),
+                  color: AppTheme.textSecondaryColor,
                   fontWeight: FontWeight.w400,
                   fontSize: 12,
                 ),
@@ -55,7 +56,7 @@ class AppPage extends StatelessWidget {
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        color: const Color(0xFF10131F), // Fondo principal sólido
+        color: AppTheme.backgroundColor, // Fondo principal sólido
         child: SafeArea(child: child),
       ),
     );

@@ -10,6 +10,7 @@ import 'package:aeronet_app_flutter/data/models/ticket_model.dart';
 import 'package:aeronet_app_flutter/shared/widgets/glass_container.dart';
 import 'package:aeronet_app_flutter/shared/extensions/string_extensions.dart';
 import 'package:aeronet_app_flutter/core/utils/helpers.dart';
+import 'package:aeronet_app_flutter/core/theme/app_theme.dart';
  
 class TicketsAdminScreen extends StatefulWidget {
   final Widget? drawer;
@@ -51,13 +52,13 @@ class _TicketsAdminScreenState extends State<TicketsAdminScreen> {
     switch (status.toLowerCase()) {
       case 'resolved':
       case 'closed':
-        return const Color(0xFF2DD4BF);
+        return AppTheme.accentColor;
       case 'in_progress':
       case 'assigned':
-        return Colors.yellowAccent;
+        return AppTheme.alertColor;
       case 'open':
       default:
-        return Colors.cyanAccent;
+        return AppTheme.accentColor;
     }
   }
  
@@ -72,8 +73,8 @@ class _TicketsAdminScreenState extends State<TicketsAdminScreen> {
       context: context,
       builder: (ctx) {
         return AlertDialog(
-          backgroundColor: const Color(0xFF1E293B),
-          title: const Text('Actualizar Estado', style: TextStyle(color: Colors.white)),
+          backgroundColor: AppTheme.cardColor,
+          title: const Text('Actualizar Estado', style: TextStyle(color: AppTheme.textPrimaryColor)),
           content: SingleChildScrollView(
             child: StatefulBuilder(
               builder: (dialogContext, setDialogState) {
@@ -82,9 +83,9 @@ class _TicketsAdminScreenState extends State<TicketsAdminScreen> {
                   children: [
                     DropdownButtonFormField<String>(
                       value: selectedStatus,
-                      dropdownColor: const Color(0xFF1E293B),
+                      dropdownColor: AppTheme.cardColor,
                       decoration: const InputDecoration(labelText: 'Nuevo estado'),
-                      style: const TextStyle(color: Colors.white),
+                      style: const TextStyle(color: AppTheme.textPrimaryColor),
                       items: validStatuses.map((st) {
                         return DropdownMenuItem(value: st, child: Text(st.cleanStatus()));
                       }).toList(),
@@ -97,11 +98,11 @@ class _TicketsAdminScreenState extends State<TicketsAdminScreen> {
                     const SizedBox(height: 16),
                     DropdownButtonFormField<String?>(
                       value: provider.technicians.any((t) => t.id == selectedTechnicianId) ? selectedTechnicianId : null,
-                      dropdownColor: const Color(0xFF1E293B),
+                      dropdownColor: AppTheme.cardColor,
                       decoration: const InputDecoration(labelText: 'Asignar Técnico (Opcional)'),
-                      style: const TextStyle(color: Colors.white),
+                      style: const TextStyle(color: AppTheme.textPrimaryColor),
                       items: [
-                        const DropdownMenuItem<String?>(value: null, child: Text('Ninguno', style: TextStyle(color: Colors.white54))),
+                        const DropdownMenuItem<String?>(value: null, child: Text('Ninguno', style: TextStyle(color: AppTheme.textSecondaryColor))),
                         ...provider.technicians.map((t) {
                           return DropdownMenuItem<String?>(
                             value: t.id,
@@ -117,11 +118,11 @@ class _TicketsAdminScreenState extends State<TicketsAdminScreen> {
                     TextField(
                       controller: notesController,
                       maxLines: 3,
-                      style: const TextStyle(color: Colors.white),
+                      style: const TextStyle(color: AppTheme.textPrimaryColor),
                       decoration: const InputDecoration(
                         labelText: 'Notas de Resolución (Opcional)',
                         hintText: 'Escribe detalles de la resolución...',
-                        hintStyle: TextStyle(color: Colors.white30),
+                        hintStyle: TextStyle(color: AppTheme.textTertiaryColor),
                       ),
                     ),
                   ],
@@ -132,7 +133,7 @@ class _TicketsAdminScreenState extends State<TicketsAdminScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(),
-              child: const Text('Cancelar', style: TextStyle(color: Colors.white60)),
+              child: const Text('Cancelar', style: TextStyle(color: AppTheme.textSecondaryColor)),
             ),
             FilledButton(
               onPressed: () async {
@@ -176,7 +177,7 @@ class _TicketsAdminScreenState extends State<TicketsAdminScreen> {
       actions: [
         IconButton(
           tooltip: 'Forzar Recarga',
-          icon: const Icon(Icons.refresh, color: Color(0xFF2DD4BF)),
+          icon: const Icon(Icons.refresh, color: AppTheme.accentColor),
           onPressed: () => adminProvider.loadTickets(),
         ),
       ],
@@ -224,7 +225,7 @@ class _TicketsAdminScreenState extends State<TicketsAdminScreen> {
                               child: Text(
                                 ticket.subject.isNotEmpty ? ticket.subject : ticket.category.cleanStatus(),
                                 style: const TextStyle(
-                                  color: Colors.white,
+                                  color: AppTheme.textPrimaryColor,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 15,
                                 ),
@@ -267,38 +268,38 @@ class _TicketsAdminScreenState extends State<TicketsAdminScreen> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.05),
+                                color: AppTheme.textPrimaryColor.withOpacity(0.05),
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
                                 ticket.type.toUpperCase(),
-                                style: const TextStyle(color: Colors.white60, fontSize: 10, fontWeight: FontWeight.w600),
+                                style: const TextStyle(color: AppTheme.textSecondaryColor, fontSize: 10, fontWeight: FontWeight.w600),
                               ),
                             ),
                             const SizedBox(width: 8),
                             Text(
                               ticket.category.cleanStatus(),
-                              style: const TextStyle(color: Colors.white60, fontSize: 12),
+                              style: const TextStyle(color: AppTheme.textSecondaryColor, fontSize: 12),
                             ),
                             const Spacer(),
                             Text(
                               'Prioridad: ${ticket.priority.toUpperCase()}',
                               style: TextStyle(
                                 color: ticket.priority.toLowerCase() == 'high'
-                                    ? Colors.redAccent
+                                    ? AppTheme.errorColor
                                     : ticket.priority.toLowerCase() == 'medium'
-                                        ? Colors.orangeAccent
-                                        : Colors.greenAccent,
+                                        ? AppTheme.alertColor
+                                        : AppTheme.accentColor,
                                 fontSize: 11,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                           ],
                         ),
-                        const Divider(color: Colors.white10, height: 16),
+                        const Divider(color: AppTheme.borderDividerColor, height: 16),
                         Text(
                           ticket.description,
-                          style: const TextStyle(color: Colors.white70, fontSize: 13, height: 1.4),
+                          style: const TextStyle(color: AppTheme.textSecondaryColor, fontSize: 13, height: 1.4),
                         ),
                         if (ticket.createdAt.isNotEmpty) ...
 [
@@ -309,13 +310,13 @@ class _TicketsAdminScreenState extends State<TicketsAdminScreen> {
                               if (ticket.technicianId != null && ticket.technicianId!.isNotEmpty)
                                 Row(
                                   children: [
-                                    const Icon(Icons.engineering_outlined, size: 12, color: Colors.white54),
+                                    const Icon(Icons.engineering_outlined, size: 12, color: AppTheme.textSecondaryColor),
                                     const SizedBox(width: 4),
                                     Text(
                                       ticket.technicianName?.isNotEmpty == true
                                           ? ticket.technicianName!
                                           : 'Técnico asignado',
-                                      style: const TextStyle(color: Colors.white54, fontSize: 10, fontStyle: FontStyle.italic),
+                                      style: const TextStyle(color: AppTheme.textSecondaryColor, fontSize: 10, fontStyle: FontStyle.italic),
                                     ),
                                   ],
                                 )
@@ -325,7 +326,7 @@ class _TicketsAdminScreenState extends State<TicketsAdminScreen> {
                                 alignment: Alignment.bottomRight,
                                 child: Text(
                                   'Creado: ${ticket.createdAt.split('T')[0]}',
-                                  style: const TextStyle(color: Colors.white30, fontSize: 10),
+                                  style: const TextStyle(color: AppTheme.textTertiaryColor, fontSize: 10),
                                 ),
                               ),
                             ],

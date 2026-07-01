@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:aeronet_app_flutter/core/theme/app_theme.dart';
 import 'package:aeronet_app_flutter/features/auth/screens/login_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -30,7 +31,7 @@ class AppDrawer extends StatelessWidget {
     final items = role == 'admin' ? _adminItems : _clientItems;
 
     return Drawer(
-      backgroundColor: const Color(0xFF10131F),
+      backgroundColor: AppTheme.backgroundColor,
       child: SafeArea(
         child: Column(
           children: [
@@ -42,12 +43,12 @@ class AppDrawer extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF2DD4BF).withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
+                      color: AppTheme.accentColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(16),
                     ),
                     child: const Icon(
-                      Icons.wifi_tethering,
-                      color: Color(0xFF2DD4BF),
+                      Icons.rocket_launch,
+                      color: AppTheme.accentColor,
                       size: 28,
                     ),
                   ),
@@ -163,15 +164,15 @@ class _DrawerItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = isDanger 
-        ? Colors.redAccent 
+        ? AppTheme.errorColor 
         : isSelected 
-            ? const Color(0xFF2DD4BF) 
-            : Colors.white70;
+            ? AppTheme.accentColor 
+            : AppTheme.textSecondaryColor;
             
     final bgColor = isDanger
-        ? Colors.redAccent.withOpacity(0.1)
+        ? Colors.transparent // Changed per design spec for outline danger button
         : isSelected
-            ? const Color(0xFF2DD4BF).withOpacity(0.1)
+            ? AppTheme.accentColor.withOpacity(0.1)
             : Colors.transparent;
 
     return Padding(
@@ -179,6 +180,12 @@ class _DrawerItem extends StatelessWidget {
       child: Material(
         color: bgColor,
         borderRadius: BorderRadius.circular(12),
+        shape: isDanger 
+            ? RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(50),
+                side: BorderSide(color: color.withOpacity(0.5)),
+              )
+            : null,
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(12),

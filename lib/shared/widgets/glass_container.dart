@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:aeronet_app_flutter/core/theme/app_theme.dart';
 
 class GlassContainer extends StatelessWidget {
   const GlassContainer({
     super.key,
     required this.child,
     this.padding = const EdgeInsets.all(16),
-    this.borderRadius = 22.0, // Default changed to 22.0 (large)
+    this.borderRadius = 16.0, // Default changed to 16.0 per new design
     this.borderColor,
     this.backgroundColor,
   });
@@ -21,10 +22,10 @@ class GlassContainer extends StatelessWidget {
     return Container(
       padding: padding,
       decoration: BoxDecoration(
-        color: backgroundColor ?? const Color(0xFF1A1E30), // Surface background
+        color: backgroundColor ?? AppTheme.cardColor,
         borderRadius: BorderRadius.circular(borderRadius),
         border: Border.all(
-          color: borderColor ?? const Color(0xFF2B3150), // Surface line
+          color: borderColor ?? AppTheme.borderDividerColor,
           width: 1.0,
         ),
       ),

@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  static const Color backgroundColor = Color(0xFF10131F);
-  static const Color cardColor = Color(0xFF1A1E30);
-  static const Color accentColor = Color(0xFF4FE6C4);
-  static const Color primaryColor = Color(0xFF4FE6C4);
+  static const Color backgroundColor = Color(0xFF0D1117);
+  static const Color cardColor = Color(0xFF161B22);
+  static const Color accentColor = Color(0xFF2DD4BF);
+  static const Color primaryColor = Color(0xFF2DD4BF);
 
   static const Color surfaceSecondary = Color(0xFF222840);
   static const Color borderDividerColor = Color(0xFF2B3150);
-  static const Color textPrimaryColor = Color(0xFFF2F4FA);
-  static const Color textSecondaryColor = Color(0xFF8C92AE);
-  static const Color textTertiaryColor = Color(0xFF5C6280);
+  static const Color textPrimaryColor = Color(0xFFFFFFFF);
+  static const Color textSecondaryColor = Color(0xA6FFFFFF);
+  static const Color textTertiaryColor = Color(0x66FFFFFF);
   static const Color alertColor = Color(0xFFFFB454);
   static const Color errorColor = Color(0xFFFF6B6B);
 
