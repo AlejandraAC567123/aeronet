@@ -300,7 +300,13 @@ class _TechniciansScreenState extends State<TechniciansScreen> {
                                   const SizedBox(width: 12),
                                   const Icon(Icons.workspace_premium_outlined, size: 14, color: AppTheme.textTertiaryColor),
                                   const SizedBox(width: 4),
-                                  Text(tech.specialization, style: const TextStyle(color: AppTheme.textSecondaryColor, fontSize: 12)),
+                                  Expanded(
+                                    child: Text(
+                                      tech.specialization,
+                                      style: const TextStyle(color: AppTheme.textSecondaryColor, fontSize: 12),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
                                 ],
                               ),
                               const SizedBox(height: 6),
