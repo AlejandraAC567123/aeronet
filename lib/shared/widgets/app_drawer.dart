@@ -179,7 +179,7 @@ class _DrawerItem extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       child: Material(
         color: bgColor,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: isDanger ? null : BorderRadius.circular(12),
         shape: isDanger 
             ? RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(50),
@@ -188,7 +188,7 @@ class _DrawerItem extends StatelessWidget {
             : null,
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: isDanger ? BorderRadius.circular(50) : BorderRadius.circular(12),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Row(
