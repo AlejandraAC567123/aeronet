@@ -18,11 +18,16 @@ void main() async {
   
   print('Processing image of size ${image.width}x${image.height}');
   
-  // Convert white-ish pixels to transparent
+  // Convert non-turquoise pixels to transparent
   for (var y = 0; y < image.height; y++) {
     for (var x = 0; x < image.width; x++) {
       final pixel = image.getPixel(x, y);
-      if (pixel.r > 240 && pixel.g > 240 && pixel.b > 240) {
+      final r = pixel.r;
+      final g = pixel.g;
+      final b = pixel.b;
+      
+      // Strictly isolate turquoise: R should be low, G and B high.
+      if (g < 140 || b < 140 || r > 120) {
         image.setPixelRgba(x, y, 0, 0, 0, 0);
       }
     }
